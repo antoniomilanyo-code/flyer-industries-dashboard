@@ -1,1850 +1,1129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Flyer Industries — Command Center</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-:root {
-  --bg: #12141c;
-  --surface: #1a1d27;
-  --surface-2: #222636;
-  --surface-3: #2a2e3e;
-  --border: rgba(255,255,255,.08);
-  --border-2: rgba(255,255,255,.12);
-  --text: #e8eaf0;
-  --text-muted: #8b90a0;
-  --text-faint: #5a5f72;
-  --primary: #5ba0d9;
-  --primary-dim: rgba(91,160,217,.15);
-  --accent: #c0c0c0;
-  --green: #5B8A5E;
-  --red: #C45B3B;
-  --orange: #C46B3B;
-  --purple: #9B7ED9;
-  --radius: 10px;
-  --radius-sm: 6px;
-  --transition: 180ms cubic-bezier(.16,1,.3,1);
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --sidebar-w: 260px;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body {
-  height: 100%; overflow: hidden;
-  font-family: var(--font); font-size: 14px;
-  color: var(--text); background: var(--bg);
-  -webkit-font-smoothing: antialiased;
-}
-
-/* --- STARK-INSPIRED LOGO --- */
-.fi-logo-container {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
-
-.fi-logo-text {
-  font-family: 'Inter', sans-serif;
-  font-size: 18px;
-  font-weight: 800;
-  font-style: italic;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  background: linear-gradient(180deg, 
-    #ffffff 0%, 
-    #e8e8e8 20%, 
-    #c0c0c0 50%, 
-    #a0a0a0 80%, 
-    #808080 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  position: relative;
-}
-
-.fi-logo-text::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255,255,255,0.8) 20%, 
-    rgba(255,255,255,0.8) 80%, 
-    transparent 100%
-  );
-}
-
-.fi-logo-slash {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 0 0 28px 8px;
-  border-color: transparent transparent transparent #c0c0c0;
-  margin-left: 2px;
-  filter: drop-shadow(2px 0 2px rgba(0,0,0,0.3));
-}
-
-/* --- SIDEBAR --- */
-.sidebar {
-  position: fixed; left: 0; top: 0; bottom: 0;
-  width: var(--sidebar-w); background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  z-index: 100; transition: transform .25s ease;
-}
-.sidebar-header {
-  display: flex; align-items: center;
-  padding: 20px 16px 16px;
-  border-bottom: 1px solid var(--border);
-}
-.sidebar-nav {
-  flex: 1; overflow-y: auto; padding: 12px 10px;
-  overscroll-behavior: contain;
-}
-.nav-section-label {
-  font-size: 10px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: .08em; color: var(--text-faint);
-  padding: 14px 8px 6px;
-}
-.nav-item {
-  display: flex; align-items: center; gap: 10px;
-  width: 100%; padding: 9px 12px; border-radius: var(--radius-sm);
-  font-size: 13px; color: var(--text-muted); cursor: pointer;
-  border: none; background: none; font-family: var(--font);
-  transition: background var(--transition), color var(--transition);
-}
-.nav-item:hover { background: var(--surface-2); color: var(--text); }
-.nav-item.active { background: var(--primary-dim); color: var(--primary); font-weight: 500; }
-.nav-item i { flex-shrink: 0; font-size: 16px; width: 18px; text-align: center; }
-.sidebar-footer {
-  padding: 12px 18px; border-top: 1px solid var(--border);
-  font-size: 11px; color: var(--text-faint);
-}
-.live-indicator {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 11px; color: var(--green);
-}
-.live-dot {
-  width: 6px; height: 6px; background: var(--green);
-  border-radius: 50%;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .5; }
-}
-
-/* --- TOPBAR --- */
-.topbar {
-  display: none; position: fixed; top: 0; left: 0; right: 0;
-  height: 52px; background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 16px; align-items: center; gap: 12px; z-index: 90;
-}
-.topbar-title { 
-  font-family: 'Inter', sans-serif;
-  font-weight: 800;
-  font-style: italic;
-  font-size: 15px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  background: linear-gradient(180deg, #ffffff 0%, #c0c0c0 50%, #808080 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.hamburger { color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 4px; }
-
-/* --- MAIN --- */
-.main-content {
-  margin-left: var(--sidebar-w);
-  height: 100dvh; overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 32px 32px 48px;
-}
-
-/* --- VIEWS --- */
-.view { display: none; }
-.view.active { display: block; }
-
-.back-btn {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: none; border: none; color: var(--text-muted);
-  font-size: 13px; cursor: pointer; padding: 4px 0;
-  margin-bottom: 16px; font-family: var(--font);
-  transition: color var(--transition);
-}
-.back-btn:hover { color: var(--primary); }
-
-.view-title {
-  font-size: 22px; font-weight: 600; margin-bottom: 20px;
-}
-.view-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
-
-/* --- HOME --- */
-.welcome-row {
-  display: flex; justify-content: space-between; align-items: flex-end;
-  margin-bottom: 28px;
-}
-.welcome-title { font-size: 26px; font-weight: 600; }
-.welcome-sub { color: var(--text-muted); font-size: 14px; margin-top: 2px; }
-.welcome-date { color: var(--text-faint); font-size: 13px; }
-
-/* Hero Cards */
-.hero-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px; margin-bottom: 28px;
-}
-.hero-card {
-  position: relative; background: var(--surface-2);
-  border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 20px; cursor: pointer;
-  transition: border-color var(--transition), box-shadow var(--transition);
-}
-.hero-card:hover {
-  border-color: var(--border-2);
-  box-shadow: 0 4px 20px rgba(0,0,0,.3);
-}
-.hero-card h3 { font-size: 15px; font-weight: 600; margin-top: 12px; }
-.hero-card p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-.hero-icon { 
-  width: 40px; height: 40px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; margin-bottom: 8px;
-}
-.hero-badge {
-  position: absolute; top: 12px; right: 12px;
-  font-size: 10px; font-weight: 600; padding: 2px 8px;
-  border-radius: 20px; background: var(--primary-dim); color: var(--primary);
-}
-.hero-crafted { border-left: 3px solid var(--orange); }
-.hero-crafted .hero-icon { background: rgba(196,107,59,.1); }
-.hero-ascend { border-left: 3px solid var(--green); }
-.hero-ascend .hero-icon { background: rgba(91,138,94,.1); }
-.hero-taxmate { border-left: 3px solid var(--primary); }
-.hero-taxmate .hero-icon { background: var(--primary-dim); }
-
-/* Quick Stats */
-.quick-stats {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 12px; margin-bottom: 28px;
-}
-.stat-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 14px 16px;
-}
-.stat-label { display: block; font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
-.stat-value { font-size: 20px; font-weight: 600; }
-
-/* Section Blocks */
-.section-block { margin-bottom: 28px; }
-.section-heading {
-  font-size: 15px; font-weight: 600; margin-bottom: 14px;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* Two Column Layout */
-.home-bottom-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-
-/* List Items */
-.list-container { display: flex; flex-direction: column; gap: 2px; }
-.list-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 14px; border-radius: var(--radius-sm);
-  background: var(--surface); border: 1px solid var(--border);
-  margin-bottom: 8px;
-  transition: background var(--transition);
-  cursor: pointer;
-}
-.list-item:hover { background: var(--surface-2); }
-.list-icon { 
-  width: 36px; height: 36px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; flex-shrink: 0;
-}
-.list-content { flex: 1; min-width: 0; }
-.list-content h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
-.list-content p { font-size: 11px; color: var(--text-faint); }
-.list-value { font-size: 14px; font-weight: 600; color: var(--primary); }
-
-.status-badge {
-  font-size: 9px; font-weight: 700; padding: 2px 8px;
-  border-radius: 20px;
-}
-.status-badge.active { background: rgba(91,138,94,.15); color: var(--green); }
-.status-badge.pending { background: rgba(196,107,59,.15); color: var(--orange); }
-.status-badge.alert { background: rgba(196,91,59,.15); color: var(--red); }
-
-/* --- CALENDAR WIDGET --- */
-.calendar-widget {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-}
-.cal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-.cal-nav {
-  display: flex;
-  gap: 8px;
-}
-.cal-nav-btn {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition);
-}
-.cal-nav-btn:hover {
-  background: var(--surface-3);
-  color: var(--text);
-}
-.cal-month-label {
-  font-size: 14px;
-  font-weight: 600;
-}
-.cal-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  text-align: center;
-}
-.cal-dow {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-faint);
-  text-transform: uppercase;
-  padding: 4px 0;
-}
-.cal-day {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: all var(--transition);
-  position: relative;
-}
-.cal-day:hover {
-  background: var(--surface-2);
-  color: var(--text);
-}
-.cal-day.today {
-  background: var(--primary);
-  color: #fff;
-  font-weight: 600;
-}
-.cal-day.has-event::after {
-  content: '';
-  position: absolute;
-  bottom: 3px;
-  width: 4px;
-  height: 4px;
-  background: var(--orange);
-  border-radius: 50%;
-}
-.cal-day.other-month {
-  opacity: 0.3;
-}
-
-/* --- PROJECT TABS --- */
-.project-tabs {
-  display: flex;
-  gap: 4px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 20px;
-  overflow-x: auto;
-}
-.ptab {
-  padding: 10px 16px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-muted);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  font-family: var(--font);
-  transition: all var(--transition);
-  white-space: nowrap;
-}
-.ptab:hover { color: var(--text); }
-.ptab.active { color: var(--primary); border-bottom-color: var(--primary); }
-.ptab-content { display: none; }
-.ptab-content.active { display: block; animation: fadeIn 0.3s ease; }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* --- KPI CARDS --- */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.kpi-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-}
-.kpi-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 8px;
-}
-.kpi-label {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-faint);
-}
-.kpi-badge {
-  font-size: 9px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 3px;
-  background: var(--surface-3);
-  color: var(--text-muted);
-}
-.kpi-badge.accent {
-  background: rgba(196,107,59,.15);
-  color: var(--orange);
-}
-.kpi-value {
-  font-size: 22px;
-  font-weight: 700;
-  margin: 4px 0;
-}
-.kpi-delta {
-  font-size: 11px;
-  font-weight: 600;
-}
-.kpi-delta.up { color: var(--green); }
-.kpi-delta.down { color: var(--red); }
-.kpi-sub {
-  font-size: 11px;
-  color: var(--text-faint);
-}
-
-/* --- PROGRESS BAR --- */
-.progress-track {
-  height: 8px;
-  background: var(--surface-3);
-  border-radius: 20px;
-  overflow: hidden;
-  margin: 12px 0;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--orange), #D4884E);
-  border-radius: 20px;
-  transition: width 0.8s cubic-bezier(.16,1,.3,1);
-}
-
-/* --- PROPERTY CARDS --- */
-.prop-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 16px;
-}
-.prop-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-}
-.prop-name {
-  font-size: 18px;
-  font-weight: 600;
-}
-.prop-type {
-  font-size: 11px;
-  color: var(--green);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-.prop-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.prop-detail {
-  font-size: 13px;
-}
-.prop-detail-label {
-  display: block;
-  font-size: 10px;
-  color: var(--text-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 2px;
-}
-
-/* --- TASK CHECKLIST --- */
-.task-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-}
-.task-item:last-child { border-bottom: none; }
-.task-check {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--green);
-  color: #fff;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  cursor: pointer;
-}
-.task-check-empty {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid var(--border-2);
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: all var(--transition);
-}
-.task-check-empty:hover {
-  border-color: var(--green);
-}
-.task-item.done {
-  color: var(--text-muted);
-  text-decoration: line-through;
-}
-.task-ai {
-  font-size: 9px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 3px;
-  background: rgba(155,126,217,.15);
-  color: var(--purple);
-  margin-left: auto;
-}
-
-/* --- DOCUMENT PREVIEW MODAL --- */
-.doc-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.8);
-  z-index: 1000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-.doc-modal-overlay.active { display: flex; }
-.doc-modal {
-  width: 100%;
-  max-width: 900px;
-  height: 80vh;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-.doc-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-}
-.doc-modal-title {
-  font-size: 16px;
-  font-weight: 600;
-}
-.doc-modal-actions {
-  display: flex;
-  gap: 12px;
-}
-.doc-modal-btn {
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  font-family: var(--font);
-  transition: all var(--transition);
-}
-.doc-modal-btn.primary {
-  background: var(--primary);
-  color: #fff;
-}
-.doc-modal-btn.secondary {
-  background: var(--surface-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-.doc-modal-btn:hover {
-  opacity: 0.9;
-}
-.doc-modal-close {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 24px;
-  cursor: pointer;
-  padding: 4px;
-  line-height: 1;
-}
-.doc-modal-close:hover { color: var(--text); }
-.doc-modal-body {
-  flex: 1;
-  overflow: auto;
-  padding: 20px;
-}
-.doc-modal-frame {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: #fff;
-  border-radius: var(--radius-sm);
-}
-
-/* --- PDF SECTION --- */
-.pdf-section {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 20px;
-}
-.pdf-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
-  margin-top: 16px;
-}
-.pdf-card {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 16px;
-  cursor: pointer;
-  transition: all var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.pdf-card:hover {
-  border-color: var(--primary);
-  background: var(--surface-3);
-}
-.pdf-icon {
-  width: 40px;
-  height: 40px;
-  background: rgba(196,91,59,.15);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--red);
-  font-size: 18px;
-}
-.pdf-info {
-  flex: 1;
-}
-.pdf-name {
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 2px;
-}
-.pdf-meta {
-  font-size: 11px;
-  color: var(--text-faint);
-}
-
-/* --- BOTTOM NAV --- */
-.bottom-nav {
-  display: none; position: fixed; bottom: 0; left: 0; right: 0;
-  height: 60px; background: var(--surface);
-  border-top: 1px solid var(--border);
-  justify-content: space-around; align-items: center;
-  padding-bottom: env(safe-area-inset-bottom, 0);
-  z-index: 90;
-}
-.bnav-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  background: none; border: none; color: var(--text-faint);
-  font-size: 10px; font-family: var(--font); cursor: pointer;
-  padding: 6px 12px; transition: color var(--transition);
-}
-.bnav-btn.active { color: var(--primary); }
-.bnav-btn:hover { color: var(--text); }
-
-.sidebar-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,.5); z-index: 95;
-}
-.sidebar-overlay.open { display: block; }
-
-/* --- LOADING --- */
-.loading-spinner {
-  display: flex; align-items: center; justify-content: center;
-  padding: 40px; color: var(--text-faint); font-size: 13px; gap: 10px;
-}
-.spinner-ring {
-  width: 20px; height: 20px; border: 2px solid var(--border-2);
-  border-top-color: var(--primary); border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* --- RESPONSIVE --- */
-@media (max-width: 900px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
-  .topbar { display: flex; }
-  .bottom-nav { display: flex; }
-  .main-content {
-    margin-left: 0; padding: 68px 16px 80px;
-    height: calc(100dvh - 60px);
-  }
-  .hero-grid { grid-template-columns: repeat(2, 1fr); }
-  .quick-stats { grid-template-columns: repeat(2, 1fr); }
-  .home-bottom-grid { grid-template-columns: 1fr; }
-  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .welcome-row { flex-direction: column; gap: 4px; align-items: flex-start; }
-}
-
-@media (max-width: 480px) {
-  .hero-grid { grid-template-columns: 1fr; }
-  .quick-stats { grid-template-columns: 1fr; }
-  .kpi-grid { grid-template-columns: 1fr; }
-}
-
-/* --- SCROLLBAR --- */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: var(--surface); }
-::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flyer Industries Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg: #12141c;
+      --surface: #1a1d27;
+      --surface-2: #222636;
+      --border: rgba(255,255,255,.08);
+      --text: #e8eaf0;
+      --text-muted: #8b90a0;
+      --text-faint: #5a5f72;
+      --primary: #5ba0d9;
+      --primary-dim: rgba(91,160,217,.15);
+      --green: #5B8A5E;
+      --red: #C45B3B;
+      --orange: #C46B3B;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    /* Layout */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+    
+    .sidebar-header {
+      padding: 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .logo {
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      font-style: italic;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #fff 0%, #c0c0c0 50%, #808080 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .nav-section {
+      padding: 20px 12px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .nav-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-faint);
+      padding: 0 8px 8px;
+    }
+    
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 2px;
+    }
+    
+    .nav-btn:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+    
+    .nav-btn.active {
+      background: var(--primary-dim);
+      color: var(--primary);
+    }
+    
+    /* Main Content */
+    .main {
+      flex: 1;
+      margin-left: 260px;
+      padding: 32px;
+      min-height: 100vh;
+    }
+    
+    /* Views */
+    .view {
+      display: none;
+    }
+    
+    .view.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Header */
+    .header {
+      margin-bottom: 28px;
+    }
+    
+    .header h1 {
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .header p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    
+    .card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    
+    .card:hover {
+      border-color: rgba(255,255,255,.12);
+      box-shadow: 0 4px 20px rgba(0,0,0,.3);
+    }
+    
+    .card-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: var(--primary-dim);
+      color: var(--primary);
+    }
+    
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    
+    .card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .card p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    
+    .card-crafted { border-left: 3px solid var(--orange); }
+    .card-crafted .card-icon { background: rgba(196,107,59,.1); }
+    .card-ascend { border-left: 3px solid var(--green); }
+    .card-ascend .card-icon { background: rgba(91,138,94,.1); }
+    .card-taxmate { border-left: 3px solid var(--primary); }
+    .card-taxmate .card-icon { background: var(--primary-dim); }
+    
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+    }
+    
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 4px;
+    }
+    
+    .stat-value {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    /* Section */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .section h2 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    
+    /* List Items */
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .list-item:hover {
+      background: var(--surface);
+    }
+    
+    .list-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    
+    .list-content {
+      flex: 1;
+    }
+    
+    .list-content h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    
+    .list-content p {
+      font-size: 11px;
+      color: var(--text-faint);
+    }
+    
+    .badge {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    
+    .badge-green { background: rgba(91,138,94,.15); color: var(--green); }
+    .badge-orange { background: rgba(196,107,59,.15); color: var(--orange); }
+    .badge-red { background: rgba(196,91,59,.15); color: var(--red); }
+    
+    /* Back Button */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 4px 0;
+      margin-bottom: 16px;
+      font-family: inherit;
+    }
+    
+    .back-btn:hover { color: var(--primary); }
+    
+    /* Page Title */
+    .page-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .page-sub {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    
+    .tab {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .kpi-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    
+    .kpi-delta {
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .kpi-delta.up { color: var(--green); }
+    .kpi-delta.down { color: var(--red); }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.8);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    
+    .modal-overlay.active { display: flex; }
+    
+    .modal {
+      width: 100%;
+      max-width: 900px;
+      height: 80vh;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .modal-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+    
+    .modal-btn.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    
+    .modal-btn.secondary {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 24px;
+      cursor: pointer;
+    }
+    
+    .modal-body {
+      flex: 1;
+      overflow: auto;
+      padding: 20px;
+    }
+    
+    .modal-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #fff;
+      border-radius: 6px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 80px 16px 100px; }
+      .card-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    /* Mobile nav */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      justify-content: space-around;
+      align-items: center;
+      z-index: 90;
+    }
+    
+    @media (max-width: 900px) {
+      .mobile-nav { display: flex; }
+    }
+    
+    .mnav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      background: none;
+      border: none;
+      color: var(--text-faint);
+      font-size: 10px;
+      cursor: pointer;
+      padding: 6px 12px;
+    }
+    
+    .mnav-btn.active { color: var(--primary); }
+    
+    /* Topbar mobile */
+    .topbar {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 52px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      align-items: center;
+      z-index: 95;
+    }
+    
+    @media (max-width: 900px) {
+      .topbar { display: flex; }
+    }
+    
+    .menu-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+    }
+    
+    .topbar-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-style: italic;
+      font-size: 15px;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #fff 0%, #c0c0c0 50%, #808080 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-left: 12px;
+    }
+    
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 95;
+    }
+    
+    .sidebar-overlay.active { display: block; }
+  </style>
 </head>
 <body>
-
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <div class="fi-logo-container">
-      <span class="fi-logo-text">FLYER</span>
-      <div class="fi-logo-slash"></div>
-    </div>
-  </div>
-
-  <nav class="sidebar-nav" id="sidebarNav">
-    <button class="nav-item active" data-view="dashboard" onclick="showView('dashboard')">
-      <i class="fas fa-home"></i>
-      Dashboard
-    </button>
-    
-    <div class="nav-section-label">Businesses</div>
-    <button class="nav-item" data-view="crafted" onclick="showView('crafted')">
-      <i class="fas fa-coffee"></i>
-      Crafted
-    </button>
-    <button class="nav-item" data-view="ascend" onclick="showView('ascend')">
-      <i class="fas fa-building"></i>
-      Ascend Estate
-    </button>
-    <button class="nav-item" data-view="taxmate" onclick="showView('taxmate')">
-      <i class="fas fa-file-invoice-dollar"></i>
-      TaxMate
-    </button>
-    
-    <div class="nav-section-label">Operations</div>
-    <button class="nav-item" data-view="projects" onclick="showView('projects')">
-      <i class="fas fa-project-diagram"></i>
-      Projects
-    </button>
-    <button class="nav-item" data-view="properties" onclick="showView('properties')">
-      <i class="fas fa-home"></i>
-      Properties
-    </button>
-    <button class="nav-item" data-view="inventory" onclick="showView('inventory')">
-      <i class="fas fa-boxes"></i>
-      Inventory
-    </button>
-    
-    <div class="nav-section-label">Documents</div>
-    <button class="nav-item" data-view="pdfs" onclick="showView('pdfs')">
-      <i class="fas fa-file-pdf"></i>
-      PDF Reports
-    </button>
-    
-    <div class="nav-section-label">System</div>
-    <button class="nav-item" data-view="settings" onclick="showView('settings')">
-      <i class="fas fa-cog"></i>
-      Settings
-    </button>
-  </nav>
-
-  <div class="sidebar-footer">
-    <div class="live-indicator">
-      <div class="live-dot"></div>
-      <span>LIVE</span>
-    </div>
-  </div>
-</aside>
-
-<!-- MOBILE TOP BAR -->
-<header class="topbar" id="topbar">
-  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
-    <i class="fas fa-bars"></i>
-  </button>
-  <span class="topbar-title">FLYER</span>
-</header>
-
-<!-- MAIN CONTENT -->
-<main class="main-content" id="main">
-
-  <!-- DASHBOARD VIEW -->
-  <div class="view active" id="view-dashboard">
-    <div class="welcome-row">
-      <div>
-        <h1 class="welcome-title">Welcome, Tony!</h1>
-        <p class="welcome-sub">Flyer Industries Command Center</p>
-      </div>
-      <div class="welcome-date" id="currentDate"></div>
-    </div>
-
-    <!-- Business Hero Cards -->
-    <div class="hero-grid">
-      <div class="hero-card hero-crafted" onclick="showView('crafted')">
-        <div class="hero-icon">☕</div>
-        <span class="hero-badge">Active</span>
-        <h3>Crafted</h3>
-        <p>Coffee Shop — Berawa, Bali</p>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">FLYER /</div>
       </div>
       
-      <div class="hero-card hero-ascend" onclick="showView('ascend')">
-        <div class="hero-icon">🏡</div>
-        <span class="hero-badge">Active</span>
-        <h3>Ascend Estate</h3>
-        <p>Villa Management — Bali</p>
-      </div>
+      <nav class="nav-section">
+        <div class="nav-label">Businesses</div>
+        <button class="nav-btn active" data-view="dashboard">
+          <i class="fas fa-home"></i> Dashboard
+        </button>
+        <button class="nav-btn" data-view="crafted">
+          <i class="fas fa-coffee"></i> Crafted
+        </button>
+        <button class="nav-btn" data-view="ascend">
+          <i class="fas fa-building"></i> Ascend Estate
+        </button>
+        
+        <div class="nav-label" style="margin-top: 20px;">Documents</div>
+        <button class="nav-btn" data-view="pdfs">
+          <i class="fas fa-file-pdf"></i> PDF Reports
+        </button>
+      </nav>
+    </aside>
+    
+    <!-- Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- Topbar Mobile -->
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></button>
+      <span class="topbar-title">FLYER</span>
+    </header>
+    
+    <!-- Main -->
+    <main class="main">
       
-      <div class="hero-card hero-taxmate" onclick="showView('taxmate')">
-        <div class="hero-icon">📋</div>
-        <span class="hero-badge">Setup</span>
-        <h3>TaxMate</h3>
-        <p>Tax Services — Australia</p>
-      </div>
-    </div>
-
-    <!-- Quick Stats -->
-    <div class="quick-stats">
-      <div class="stat-card">
-        <span class="stat-label">Monthly Revenue</span>
-        <span class="stat-value" id="stat-revenue">IDR 24.9M</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Transactions</span>
-        <span class="stat-value" id="stat-transactions">240</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Active Projects</span>
-        <span class="stat-value">2</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Properties</span>
-        <span class="stat-value">3</span>
-      </div>
-    </div>
-
-    <!-- Bottom Grid: Calendar + Alerts -->
-    <div class="home-bottom-grid">
-      <!-- Calendar Widget -->
-      <div class="section-block">
-        <div class="section-heading">
-          <span>Calendar</span>
-          <span style="font-size: 11px; color: var(--text-faint);">March 2026</span>
+      <!-- Dashboard View -->
+      <div class="view active" id="view-dashboard">
+        <div class="header">
+          <h1>Welcome, Tony!</h1>
+          <p>Flyer Industries Command Center</p>
         </div>
-        <div class="calendar-widget">
-          <div class="cal-grid" id="calGrid">
-            <!-- Generated by JS -->
+        
+        <div class="card-grid">
+          <div class="card card-crafted" data-nav="crafted">
+            <div class="card-icon">☕</div>
+            <span class="card-badge">Active</span>
+            <h3>Crafted</h3>
+            <p>Coffee Shop — Berawa, Bali</p>
+          </div>
+          
+          <div class="card card-ascend" data-nav="ascend">
+            <div class="card-icon">🏡</div>
+            <span class="card-badge">Active</span>
+            <h3>Ascend Estate</h3>
+            <p>Villa Management — Bali</p>
+          </div>
+          
+          <div class="card card-taxmate" data-nav="taxmate">
+            <div class="card-icon">📋</div>
+            <span class="card-badge">Setup</span>
+            <h3>TaxMate</h3>
+            <p>Tax Services — Australia</p>
           </div>
         </div>
-      </div>
-
-      <!-- Alerts Section -->
-      <div class="section-block">
-        <h2 class="section-heading">Active Alerts</h2>
-        <div class="list-container">
-          <div class="list-item" onclick="showView('crafted')">
+        
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-label">Monthly Revenue</div>
+            <div class="stat-value" id="stat-revenue">IDR 24.9M</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Transactions</div>
+            <div class="stat-value">240</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Active Projects</div>
+            <div class="stat-value">2</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Properties</div>
+            <div class="stat-value">3</div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <h2>Active Alerts</h2>
+          
+          <div class="list-item" data-nav="crafted">
             <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">⚠️</div>
             <div class="list-content">
               <h4>Food Cost Variance</h4>
               <p>Banana consumption +60% over tolerance</p>
             </div>
-            <span class="status-badge alert">Action</span>
+            <span class="badge badge-red">Action</span>
           </div>
-          <div class="list-item" onclick="showView('crafted')">
+          
+          <div class="list-item" data-nav="crafted">
             <div class="list-icon" style="background: rgba(196,107,59,.1); color: var(--orange);">📊</div>
             <div class="list-content">
               <h4>Mokapos Baseline</h4>
               <p>Monthly revenue data needs import</p>
             </div>
-            <span class="status-badge pending">Pending</span>
+            <span class="badge badge-orange">Pending</span>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Projects Section -->
-    <div class="section-block">
-      <h2 class="section-heading">Active Projects</h2>
-      <div class="list-container">
-        <div class="list-item" onclick="showView('projects')">
-          <div class="list-icon" style="background: rgba(91,138,94,.1); color: var(--green);">🏗️</div>
-          <div class="list-content">
-            <h4>Villa Nativa</h4>
-            <p>New villa construction</p>
-          </div>
-          <span class="status-badge active">In Progress</span>
-        </div>
-        <div class="list-item" onclick="showView('projects')">
-          <div class="list-icon" style="background: rgba(91,138,94,.1); color: var(--green);">🏢</div>
-          <div class="list-content">
-            <h4>Taycana Apartments</h4>
-            <p>Apartment complex development</p>
-          </div>
-          <span class="status-badge active">In Progress</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CRAFTED VIEW -->
-  <div class="view" id="view-crafted">
-    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
-    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
-      <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(196,107,59,.15); display: flex; align-items: center; justify-content: center; font-size: 24px;">☕</div>
-      <div>
-        <h1 class="view-title" style="margin-bottom: 0;">Crafted Coffee Shop</h1>
-        <p style="color: var(--text-muted); font-size: 13px;">Berawa, Bali — Coffee Shop Operations</p>
-      </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="project-tabs">
-      <button class="ptab active" onclick="showProjectTab(this, 'crafted-dashboard')">Dashboard</button>
-      <button class="ptab" onclick="showProjectTab(this, 'crafted-tasks')">Tasks</button>
-      <button class="ptab" onclick="showProjectTab(this, 'crafted-docs')">Documents</button>
-    </div>
-
-    <!-- Dashboard Tab -->
-    <div class="ptab-content active" id="crafted-dashboard">
-      <!-- KPI Cards -->
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-label">Monthly Revenue</span>
-            <span class="kpi-badge accent">Latest</span>
-          </div>
-          <div class="kpi-value" style="color: var(--orange);">IDR 24.9M</div>
-          <div class="kpi-delta up">↑ 12.5% vs last period</div>
-        </div>
-
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-label">Gross Sales</span>
-          </div>
-          <div class="kpi-value">IDR 27.6M</div>
-          <div class="kpi-sub">Before discounts</div>
-        </div>
-
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-label">Food Cost</span>
-          </div>
-          <div class="kpi-value" style="color: var(--red);">32.4%</div>
-          <div class="kpi-delta down">↑ 5.2% over target</div>
-        </div>
-
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-label">Transactions</span>
-          </div>
-          <div class="kpi-value">240</div>
-          <div class="kpi-delta up">↑ 8.3% vs last period</div>
-        </div>
-      </div>
-
-      <!-- Progress Section -->
-      <div class="pdf-section">
-        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
-          <span style="font-size: 15px; font-weight: 600;">February Performance</span>
-          <span style="font-size: 12px; color: var(--text-faint);">Period: 21 Jan – 20 Feb 2026</span>
-        </div>
-        
-        <div style="margin-bottom: 16px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span style="font-size: 13px;">Revenue Target</span>
-            <span style="font-size: 13px; font-weight: 600; color: var(--orange);">84.7%</span>
-          </div>
-          <div class="progress-track">
-            <div class="progress-fill" style="width: 84.7%;"></div>
-          </div>
-          <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 12px; color: var(--text-faint);">
-            <span>Actual: IDR 27.6M</span>
-            <span>Target: IDR 32.6M</span>
-          </div>
-        </div>
-
-        <div style="display: flex; gap: 24px; padding: 16px; background: var(--surface-2); border-radius: var(--radius-sm);">
-          <div style="text-align: center;">
-            <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase; margin-bottom: 4px;">Food Cost</div>
-            <div style="font-size: 20px; font-weight: 700;">28.3%</div>
-          </div>
-          <div style="width: 1px; background: var(--border-2);"></div>
-          <div style="text-align: center;">
-            <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase; margin-bottom: 4px;">Bev Cost</div>
-            <div style="font-size: 20px; font-weight: 700;">18.2%</div>
-          </div>
-          <div style="width: 1px; background: var(--border-2);"></div>
-          <div style="text-align: center;">
-            <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase; margin-bottom: 4px;">Labor</div>
-            <div style="font-size: 20px; font-weight: 700;">24.1%</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tasks Tab -->
-    <div class="ptab-content" id="crafted-tasks">
-      <div class="pdf-section">
-        <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 16px;">Daily Checklist</h3>
-        
-        <div class="task-item done">
-          <div class="task-check"><i class="fas fa-check"></i></div>
-          <span>Check Mokapos sales data</span>
-          <span class="task-ai">AI</span>
-        </div>
-        
-        <div class="task-item done">
-          <div class="task-check"><i class="fas fa-check"></i></div>
-          <span>Verify petty cash entries</span>
-        </div>
-        
-        <div class="task-item">
-          <div class="task-check-empty" onclick="toggleTask(this)"></div>
-          <span>Review food cost variance report</span>
-          <span class="status-badge alert">Urgent</span>
-        </div>
-        
-        <div class="task-item">
-          <div class="task-check-empty" onclick="toggleTask(this)"></div>
-          <span>Update recipe costs in database</span>
-        </div>
-        
-        <div class="task-item">
-          <div class="task-check-empty" onclick="toggleTask(this)"></div>
-          <span>Export monthly summary PDF</span>
-          <span class="task-ai">AI</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Documents Tab -->
-    <div class="ptab-content" id="crafted-docs">
-      <div class="list-container">
-        <div class="list-item" onclick="openDocPreview('Daily_Report_March.pdf', 'Daily Report - March 2026')">
-          <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);"><i class="fas fa-file-pdf"></i></div>
-          <div class="list-content">
-            <h4>Daily Report - March 2026</h4>
-            <p>Financial summary & analysis</p>
-          </div>
-          <span class="list-value">PDF</span>
-        </div>
-        
-        <div class="list-item" onclick="openDocPreview('Recipe_Book.pdf', 'Barista Recipe Book')">
-          <div class="list-icon" style="background: rgba(91,160,217,.1); color: var(--primary);"><i class="fas fa-book"></i></div>
-          <div class="list-content">
-            <h4>Barista Recipe Book</h4>
-            <p>43 beverage recipes with costs</p>
-          </div>
-          <span class="list-value">PDF</span>
-        </div>
-        
-        <div class="list-item" onclick="openDocPreview('Kitchen_Recipes.pdf', 'Kitchen Recipe Book')">
-          <div class="list-icon" style="background: rgba(91,160,217,.1); color: var(--primary);"><i class="fas fa-utensils"></i></div>
-          <div class="list-content">
-            <h4>Kitchen Recipe Book</h4>
-            <p>18 food recipes with costs</p>
-          </div>
-          <span class="list-value">PDF</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ASCEND VIEW -->
-  <div class="view" id="view-ascend">
-    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
-    
-    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
-      <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(91,138,94,.15); display: flex; align-items: center; justify-content: center; font-size: 24px;">🏡</div>
-      <div>
-        <h1 class="view-title" style="margin-bottom: 0;">Ascend Estate</h1>
-        <p style="color: var(--text-muted); font-size: 13px;">Villa Management & Real Estate</p>
-      </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="project-tabs">
-      <button class="ptab active" onclick="showProjectTab(this, 'ascend-properties')">Properties</button>
-      <button class="ptab" onclick="showProjectTab(this, 'ascend-petty')">Petty Cash</button>
-      <button class="ptab" onclick="showProjectTab(this, 'ascend-docs')">Documents</button>
-    </div>
-
-    <!-- Properties Tab -->
-    <div class="ptab-content active" id="ascend-properties">
       
-      <!-- Villa Panamera -->
-      <div class="prop-card">
-        <div class="prop-header">
-          <div>
-            <div class="prop-name">Villa Panamera</div>
-            <div class="prop-type">Villa — Canggu</div>
-          </div>
-          <span class="status-badge active">Active</span>
+      <!-- Crafted View -->
+      <div class="view" id="view-crafted">
+        <button class="back-btn" id="backFromCrafted">← Back</button>
+        <h1 class="page-title">Crafted Coffee Shop</h1>
+        <p class="page-sub">Berawa, Bali — Coffee Shop Operations</p>
+        
+        <div class="tabs">
+          <button class="tab active" data-tab="crafted-kpi">Dashboard</button>
+          <button class="tab" data-tab="crafted-tasks">Tasks</button>
+          <button class="tab" data-tab="crafted-docs">Documents</button>
         </div>
         
-        <div class="prop-details">
-          <div class="prop-detail">
-            <span class="prop-detail-label">Bedrooms</span>
-            <span>4</span>
-          </div>
-          <div class="prop-detail">
-            <span class="prop-detail-label">Bathrooms</span>
-            <span>4</span>
-          </div>
-          <div class="prop-detail">
-            <span class="prop-detail-label">Pool</span>
-            <span>Yes</span>
-          </div>
-          <div class="prop-detail">
-            <span class="prop-detail-label">Manager</span>
-            <span>Be Bali Group</span>
-          </div>
-          <div class="prop-detail">
-            <span class="prop-detail-label">Petty Cash</span>
-            <span style="color: var(--green);">IDR 2.03M</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Golden Hour Villas -->
-      <div class="prop-card">
-        <div class="prop-header">
-          <div>
-            <div class="prop-name">Golden Hour Villas</div>
-            <div class="prop-type">Villa Complex — Dalung</div>
-          </div>
-          <span class="status-badge active">Active</span>
-        </div>
-        
-        <div class="prop-details">
-          <div class="prop-detail">
-            <span class="prop-detail-label">Villas</span>
-            <span>2 (Paradiso & Lotus)</span>
-          </div>
-          <div class="prop-detail">
-            <span class="prop-detail-label">Manager</span>
-            <span>Be Bali Group</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Black Sand Resort -->
-      <div class="prop-card">
-        <div class="prop-header">
-          <div>
-            <div class="prop-name">Black Sand Resort</div>
-            <div class="prop-type">Resort — Amed</div>
-          </div>
-          <span class="status-badge active">Active</span>
-        </div>
-        
-        <div class="prop-details">
-          <div class="prop-detail">
-            <span class="prop-detail-label">Type</span>
-            <span>Beach Resort</span>
-          </div>
-          <div class="prop-detail">
-            <span class="prop-detail-label">Location</span>
-            <span>Amed, East Bali</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Petty Cash Tab -->
-    <div class="ptab-content" id="ascend-petty">
-      <div class="pdf-section">
-        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
-          <span style="font-size: 15px; font-weight: 600;">Be Bali Group — Petty Cash</span>
-          <span style="font-size: 12px; color: var(--text-faint);">Panamera & Golden Hour</span>
-        </div>
-
-        <div class="quick-stats" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
-          <div class="stat-card">
-            <span class="stat-label">Opening Balance</span>
-            <span class="stat-value">IDR 2.12M</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-label">Total Spent</span>
-            <span class="stat-value" style="color: var(--red);">IDR 88K</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-label">Remaining</span>
-            <span class="stat-value" style="color: var(--green);">IDR 2.03M</span>
-          </div>
-        </div>
-
-        <div class="list-container">
-          <div class="list-item">
-            <div class="list-content">
-              <h4>Staff groceries</h4>
-              <p>Daily food supplies</p>
+        <div class="tab-content active" id="crafted-kpi">
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="kpi-header">
+                <span class="kpi-label">Monthly Revenue</span>
+              </div>
+              <div class="kpi-value" style="color: var(--orange);">IDR 24.9M</div>
+              <div class="kpi-delta up">↑ 12.5%</div>
             </div>
-            <span class="list-value" style="color: var(--red);">-IDR 50K</span>
+            
+            <div class="kpi">
+              <div class="kpi-header">
+                <span class="kpi-label">Gross Margin</span>
+              </div>
+              <div class="kpi-value">47.8%</div>
+              <div class="kpi-delta up">↑ 2.1%</div>
+            </div>
+            
+            <div class="kpi">
+              <div class="kpi-header">
+                <span class="kpi-label">Food Cost</span>
+              </div>
+              <div class="kpi-value" style="color: var(--red);">32.4%</div>
+              <div class="kpi-delta down">↑ 5.2%</div>
+            </div>
+            
+            <div class="kpi">
+              <div class="kpi-header">
+                <span class="kpi-label">Transactions</span>
+              </div>
+              <div class="kpi-value">240</div>
+              <div class="kpi-delta up">↑ 8.3%</div>
+            </div>
           </div>
           
-          <div class="list-item">
-            <div class="list-content">
-              <h4>Gas for guests</h4>
-              <p>Motorbike rental fuel</p>
+          <div class="section">
+            <h2>February Performance</h2>
+            <div style="display: flex; gap: 24px; padding: 16px; background: var(--surface-2); border-radius: 6px;">
+              <div style="text-align: center;">
+                <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase;">Revenue</div>
+                <div style="font-size: 24px; font-weight: 700; color: var(--orange);">84.7%</div>
+              </div>
+              <div style="width: 1px; background: var(--border);"></div>
+              <div style="text-align: center;">
+                <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase;">Food Cost</div>
+                <div style="font-size: 24px; font-weight: 700;">28.3%</div>
+              </div>
             </div>
-            <span class="list-value" style="color: var(--red);">-IDR 38K</span>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Documents Tab -->
-    <div class="ptab-content" id="ascend-docs">
-      <div class="list-container">
-        <div class="list-item" onclick="openDocPreview('Property_Contract.pdf', 'Management Contract')">
-          <div class="list-icon" style="background: rgba(91,138,94,.1); color: var(--green);"><i class="fas fa-file-contract"></i></div>
-          <div class="list-content">
-            <h4>Management Contract</h4>
-            <p>Be Bali Group agreement</p>
-          </div>
-          <span class="list-value">PDF</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PDF REPORTS VIEW -->
-  <div class="view" id="view-pdfs">
-    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
-    <h1 class="view-title">PDF Reports</h1>
-    <p class="view-sub">Generated reports available for download</p>
-
-    <!-- Generate New PDF Section -->
-    <div class="pdf-section">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Generate New Report</h3>
-          <p style="font-size: 12px; color: var(--text-faint);">Create professional PDF from current data</p>
-        </div>
-        <button class="doc-modal-btn primary" onclick="generatePDF()">
-          <i class="fas fa-file-pdf"></i> Generate PDF
-        </button>
-      </div>
-    </div>
-
-    <!-- Available PDFs -->
-    <div class="pdf-section">
-      <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 16px;">Available Reports</h3>
-      
-      <div class="pdf-grid">
-        <div class="pdf-card" onclick="openDocPreview('Daily_Report_March.pdf', 'Daily Financial Report')">
-          <div class="pdf-icon"><i class="fas fa-file-pdf"></i></div>
-          <div class="pdf-info">
-            <div class="pdf-name">Daily Financial Report</div>
-            <div class="pdf-meta">Generated: Today • 11:00 PM</div>
+        
+        <div class="tab-content" id="crafted-tasks">
+          <div class="section">
+            <h2>Daily Checklist</h2>
+            
+            <div style="padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px;">
+              <div style="width: 20px; height: 20px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px;">✓</div>
+              <span style="color: var(--text-muted); text-decoration: line-through;">Check Mokapos sales data</span>
+            </div>
+            
+            <div style="padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px;">
+              <div style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer;"></div>
+              <span>Review food cost variance</span>
+              <span class="badge badge-red" style="margin-left: auto;">Urgent</span>
+            </div>
           </div>
         </div>
-
-        <div class="pdf-card" onclick="openDocPreview('Monthly_Summary.pdf', 'Monthly Summary')">
-          <div class="pdf-icon"><i class="fas fa-file-pdf"></i></div>
-          <div class="pdf-info">
-            <div class="pdf-name">Monthly Summary</div>
-            <div class="pdf-meta">Period: Feb 21 - Mar 7</div>
+        
+        <div class="tab-content" id="crafted-docs">
+          <div class="list-item" onclick="openModal('Daily Report', 'Sample PDF content')">
+            <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">📄</div>
+            <div class="list-content">
+              <h4>Daily Report</h4>
+              <p>Financial summary & analysis</p>
+            </div>
+            <span class="badge badge-orange">PDF</span>
           </div>
         </div>
-
-        <div class="pdf-card" onclick="openDocPreview('Food_Cost_Analysis.pdf', 'Food Cost Analysis')">
-          <div class="pdf-icon"><i class="fas fa-file-pdf"></i></div>
-          <div class="pdf-info">
-            <div class="pdf-name">Food Cost Analysis</div>
-            <div class="pdf-meta">Alert: Banana variance</div>
-          </div>
-        </div>
-
-        <div class="pdf-card" onclick="openDocPreview('Recipe_Book.pdf', 'Recipe Book')">
-          <div class="pdf-icon"><i class="fas fa-book"></i></div>
-          <div class="pdf-info">
-            <div class="pdf-name">Recipe Book</div>
-            <div class="pdf-meta">43 beverages + 18 food</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- OTHER VIEWS -->
-  <div class="view" id="view-taxmate">
-    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
-    <h1 class="view-title">TaxMate</h1>
-    <p class="view-sub">Tax Services for Australian Clients</p>
-    <div style="padding: 40px; text-align: center; color: var(--text-faint);">
-      Setup required — configuration pending
-    </div>
-  </div>
-
-  <div class="view" id="view-projects">
-    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
-    <h1 class="view-title">Projects</h1>
-    <p class="view-sub">Construction & Development</p>
-    
-    <div class="prop-card">
-      <div class="prop-header">
-        <div>
-          <div class="prop-name">Villa Nativa</div>
-          <div class="prop-type">New Construction</div>
-        </div>
-        <span class="status-badge active">In Progress</span>
-      </div>
-      <p style="color: var(--text-muted); margin-top: 12px;">New villa construction project. More details coming soon.</p>
-    </div>
-
-    <div class="prop-card">
-      <div class="prop-header">
-        <div>
-          <div class="prop-name">Taycana Apartments</div>
-          <div class="prop-type">Apartment Complex</div>
-        </div>
-        <span class="status-badge active">In Progress</span>
-      </div>
-      <p style="color: var(--text-muted); margin-top: 12px;">Apartment complex development. More details coming soon.</p>
-    </div>
-  </div>
-
-  <div class="view" id="view-properties">
-    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
-    <h1 class="view-title">Properties</h1>
-    <p class="view-sub">Villa & Resort Portfolio</p>
-    
-    <!-- Same as Ascend Properties -->
-    <div class="prop-card">
-      <div class="prop-header">
-        <div>
-          <div class="prop-name">Villa Panamera</div>
-          <div class="prop-type">Villa — Canggu</div>
-        </div>
-        <span class="status-badge active">Active</span>
-      </div>
-      <div class="prop-details">
-        <div class="prop-detail"><span class="prop-detail-label">Bedrooms</span><span>4</span></div>
-        <div class="prop-detail"><span class="prop-detail-label">Manager</span><span>Be Bali Group</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="view" id="view-inventory">
-    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
-    <h1 class="view-title">Inventory</h1>
-    <p class="view-sub">Stock & Supply Management</p>
-    
-    <div class="list-container">
-      <div class="list-item">
-        <div class="list-icon" style="background: rgba(196,107,59,.1); color: var(--orange);">☕</div>
-        <div class="list-content">
-          <h4>Coffee Beans</h4>
-          <p>Dark Panther Blend</p>
-        </div>
-        <span class="list-value">12 kg</span>
       </div>
       
-      <div class="list-item">
-        <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">🍌</div>
-        <div class="list-content">
-          <h4>Bananas</h4>
-          <p style="color: var(--red);">Stock alert — variance detected</p>
+      <!-- Ascend View -->
+      <div class="view" id="view-ascend">
+        <button class="back-btn" id="backFromAscend">← Back</button>
+        
+        <h1 class="page-title">Ascend Estate</h1>
+        <p class="page-sub">Villa Management & Real Estate</p>
+        
+        <div class="section">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+            <div>
+              <div style="font-size: 18px; font-weight: 600;">Villa Panamera</div>
+              <div style="font-size: 11px; color: var(--green); font-weight: 600; text-transform: uppercase;">Villa — Canggu</div>
+            </div>
+            <span class="badge badge-green">Active</span>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+            <div>
+              <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase;">Bedrooms</div>
+              <div>4</div>
+            </div>
+            <div>
+              <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase;">Manager</div>
+              <div>Be Bali Group</div>
+            </div>
+            <div>
+              <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase;">Petty Cash</div>
+              <div style="color: var(--green);">IDR 2.03M</div>
+            </div>
+          </div>
         </div>
-        <span class="list-value" style="color: var(--red);">Low</span>
       </div>
-    </div>
-  </div>
-
-  <div class="view" id="view-settings">
-    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
-    <h1 class="view-title">Settings</h1>
-    <p class="view-sub">System Configuration</p>
-    
-    <div class="pdf-section">
-      <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 16px;">System Info</h3>
       
-      <div class="prop-details">
-        <div class="prop-detail">
-          <span class="prop-detail-label">Version</span>
-          <span>2.0.0</span>
+      <!-- PDF Reports View -->
+      <div class="view" id="view-pdfs">
+        <button class="back-btn" id="backFromPdfs">← Back</button>
+        
+        <h1 class="page-title">PDF Reports</h1>
+        <p class="page-sub">Generated reports available for download</p>
+        
+        <div class="section">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h3 style="font-size: 15px; font-weight: 600;">Generate New Report</h3>
+              <p style="font-size: 12px; color: var(--text-faint);">Create professional PDF from current data</p>
+            </div>
+            <button class="modal-btn primary" id="generatePdfBtn">
+              <i class="fas fa-file-pdf"></i> Generate PDF
+            </button>
+          </div>
         </div>
-        <div class="prop-detail">
-          <span class="prop-detail-label">Last Updated</span>
-          <span>March 8, 2026</span>
+        
+        <div class="section">
+          <h2 style="font-size: 15px; font-weight: 600; margin-bottom: 16px;">Available Reports</h2>
+          
+          <div class="list-item" onclick="openModal('Daily Financial Report', 'PDF preview')">
+            <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">📄</div>
+            <div class="list-content">
+              <h4>Daily Financial Report</h4>
+              <p>Generated: Today • 11:00 PM</p>
+            </div>
+            <span class="badge badge-orange">PDF</span>
+          </div>
         </div>
-        <div class="prop-detail">
-          <span class="prop-detail-label">Daily Check</span>
-          <span>11:00 PM WITA</span>
+      </div>
+      
+      <!-- TaxMate View -->
+      <div class="view" id="view-taxmate">
+        <button class="back-btn" id="backFromTaxmate">← Back</button>
+        <h1 class="page-title">TaxMate</h1>
+        <p class="page-sub">Tax Services for Australian Clients</p>
+        <div style="padding: 40px; text-align: center; color: var(--text-faint);">
+          Setup required — configuration pending
+        </div>
+      </div>
+      
+    </main>
+    
+    <!-- Mobile Nav -->
+    <nav class="mobile-nav">
+      <button class="mnav-btn active" data-view="dashboard">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </button>
+      <button class="mnav-btn" data-view="crafted">
+        <i class="fas fa-coffee"></i>
+        <span>Crafted</span>
+      </button>
+      <button class="mnav-btn" data-view="ascend">
+        <i class="fas fa-building"></i>
+        <span>Ascend</span>
+      </button>
+      <button class="mnav-btn" data-view="pdfs">
+        <i class="fas fa-file-pdf"></i>
+        <span>PDFs</span>
+      </button>
+    </nav>
+    
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title" id="modalTitle">Document Preview</span>
+          <div class="modal-actions">
+            <button class="modal-btn secondary" id="downloadBtn">Download</button>
+            <button class="modal-btn primary" id="telegramBtn">Send to Telegram</button>
+            <button class="modal-close" id="closeModal">&times;</button>
+          </div>
+        </div>
+        <div class="modal-body">
+          <iframe class="modal-frame" id="modalFrame"></iframe>
         </div>
       </div>
     </div>
+    
   </div>
 
-</main>
-
-<!-- MOBILE BOTTOM NAV -->
-<nav class="bottom-nav" id="bottomNav">
-  <button class="bnav-btn active" onclick="showView('dashboard');setActiveNav(this)">
-    <i class="fas fa-home" style="font-size: 18px;"></i>
-    <span>Home</span>
-  </button>
-  <button class="bnav-btn" onclick="showView('crafted');setActiveNav(this)">
-    <i class="fas fa-coffee" style="font-size: 18px;"></i>
-    <span>Crafted</span>
-  </button>
-  <button class="bnav-btn" onclick="showView('ascend');setActiveNav(this)">
-    <i class="fas fa-building" style="font-size: 18px;"></i>
-    <span>Ascend</span>
-  </button>
-  <button class="bnav-btn" onclick="showView('pdfs');setActiveNav(this)">
-    <i class="fas fa-file-pdf" style="font-size: 18px;"></i>
-    <span>PDFs</span>
-  </button>
-</nav>
-
-<!-- DOCUMENT PREVIEW MODAL -->
-<div class="doc-modal-overlay" id="docModal">
-  <div class="doc-modal">
-    <div class="doc-modal-header">
-      <span class="doc-modal-title" id="docModalTitle">Document Preview</span>
-      <div class="doc-modal-actions">
-        <button class="doc-modal-btn secondary" onclick="downloadPDF()">
-          <i class="fas fa-download"></i> Download
-        </button>
-        <button class="doc-modal-btn primary" onclick="sendToTelegram()">
-          <i class="fas fa-paper-plane"></i> Send to Telegram
-        </button>
-        <button class="doc-modal-close" onclick="closeDocModal()">&times;</button>
-      </div>
-    </div>
-    <div class="doc-modal-body">
-      <iframe class="doc-modal-frame" id="docModalFrame"></iframe>
-    </div>
-  </div>
-</div>
-
-<!-- SIDEBAR OVERLAY -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
-<script>
-// Supabase Configuration
-const SUPABASE_URL = 'https://kidbbtdnhtncxtaqqgcp.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_9tYmqkG3w3UWYToiuzzoSw_KNib98xb';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// State
-let currentPDF = null;
-
-// View Navigation
-function showView(viewName) {
-  // Hide all views
-  const views = document.querySelectorAll('.view');
-  views.forEach(function(view) {
-    view.classList.remove('active');
-  });
-  
-  // Show selected view
-  const selectedView = document.getElementById('view-' + viewName);
-  if (selectedView) {
-    selectedView.classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  
-  // Update sidebar nav items
-  const navItems = document.querySelectorAll('.nav-item');
-  navItems.forEach(function(item) {
-    item.classList.remove('active');
-    if (item.dataset.view === viewName) {
-      item.classList.add('active');
+  <script>
+    // Supabase config
+    const SUPABASE_URL = 'https://kidbbtdnhtncxtaqqgcp.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_9tYmqkG3w3UWYToiuzzoSw_KNib98xb';
+    
+    // Initialize Supabase
+    let supabase;
+    try {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (e) {
+      console.log('Supabase not loaded yet');
     }
-  });
-  
-  // Close sidebar on mobile
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  if (sidebar) sidebar.classList.remove('open');
-  if (overlay) overlay.classList.remove('open');
-  
-  // Save to localStorage
-  try {
-    localStorage.setItem('flyerActiveView', viewName);
-  } catch (e) {}
-}
-
-// Project Tab Navigation
-function showProjectTab(btn, tabId) {
-  // Remove active from all tabs
-  const tabs = btn.parentElement.querySelectorAll('.ptab');
-  tabs.forEach(function(t) { t.classList.remove('active'); });
-  
-  // Add active to clicked tab
-  btn.classList.add('active');
-  
-  // Hide all tab contents
-  const contents = document.querySelectorAll('.ptab-content');
-  contents.forEach(function(c) { c.classList.remove('active'); });
-  
-  // Show selected content
-  const content = document.getElementById(tabId);
-  if (content) content.classList.add('active');
-}
-
-// Mobile Navigation
-function setActiveNav(btn) {
-  const btns = document.querySelectorAll('.bnav-btn');
-  btns.forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
-}
-
-function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  if (sidebar) sidebar.classList.toggle('open');
-  if (overlay) overlay.classList.toggle('open');
-}
-
-// Task Toggle
-function toggleTask(el) {
-  const taskItem = el.closest('.task-item');
-  if (taskItem.classList.contains('done')) {
-    taskItem.classList.remove('done');
-    el.classList.remove('task-check');
-    el.classList.add('task-check-empty');
-    el.innerHTML = '';
-  } else {
-    taskItem.classList.add('done');
-    el.classList.remove('task-check-empty');
-    el.classList.add('task-check');
-    el.innerHTML = '<i class="fas fa-check"></i>';
-  }
-}
-
-// Document Preview Modal
-function openDocPreview(pdfUrl, title) {
-  currentPDF = { url: pdfUrl, title: title };
-  
-  const modal = document.getElementById('docModal');
-  const titleEl = document.getElementById('docModalTitle');
-  const frame = document.getElementById('docModalFrame');
-  
-  if (titleEl) titleEl.textContent = title;
-  if (frame) {
-    // For demo, show a placeholder. In production, this would be the actual PDF
-    frame.srcdoc = generatePDFPreview(title);
-  }
-  if (modal) modal.classList.add('active');
-}
-
-function closeDocModal() {
-  const modal = document.getElementById('docModal');
-  const frame = document.getElementById('docModalFrame');
-  if (modal) modal.classList.remove('active');
-  if (frame) frame.srcdoc = '';
-}
-
-function generatePDFPreview(title) {
-  return `
-    <html>
-    <head><style>
-      body { 
-        font-family: Arial, sans-serif; 
-        padding: 40px; 
-        background: #fff; 
-        color: #333;
+    
+    // Navigation function
+    function navigateTo(viewName) {
+      console.log('Navigating to:', viewName);
+      
+      // Hide all views
+      document.querySelectorAll('.view').forEach(function(v) {
+        v.classList.remove('active');
+      });
+      
+      // Show target view
+      const target = document.getElementById('view-' + viewName);
+      if (target) {
+        target.classList.add('active');
+        window.scrollTo(0, 0);
       }
-      h1 { 
-        color: #C46B3B; 
-        border-bottom: 3px solid #C46B3B;
-        padding-bottom: 10px;
+      
+      // Update nav buttons
+      document.querySelectorAll('.nav-btn').forEach(function(btn) {
+        btn.classList.remove('active');
+        if (btn.dataset.view === viewName) {
+          btn.classList.add('active');
+        }
+      });
+      
+      // Update mobile nav
+      document.querySelectorAll('.mnav-btn').forEach(function(btn) {
+        btn.classList.remove('active');
+        if (btn.dataset.view === viewName) {
+          btn.classList.add('active');
+        }
+      });
+      
+      // Close sidebar on mobile
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('active');
+      
+      // Save to localStorage
+      try {
+        localStorage.setItem('currentView', viewName);
+      } catch(e) {}
+    }
+    
+    // Tab switching
+    function switchTab(tabBtn, tabId) {
+      // Update tab buttons
+      tabBtn.parentElement.querySelectorAll('.tab').forEach(function(t) {
+        t.classList.remove('active');
+      });
+      tabBtn.classList.add('active');
+      
+      // Update content
+      document.querySelectorAll('.tab-content').forEach(function(c) {
+        c.classList.remove('active');
+      });
+      const content = document.getElementById(tabId);
+      if (content) content.classList.add('active');
+    }
+    
+    // Modal functions
+    function openModal(title, content) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalFrame').srcdoc = `
+        <html><body style="font-family: Arial; padding: 40px;">
+          <h1 style="color: #C46B3B;">${title}</h1>
+          <p>${content}</p>
+          <p>Generated: ${new Date().toLocaleString()}</p>
+        </body></html>
+      `;
+      document.getElementById('modal').classList.add('active');
+    }
+    
+    function closeModal() {
+      document.getElementById('modal').classList.remove('active');
+    }
+    
+    // Generate PDF
+    function generatePDF() {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        doc.setFontSize(22);
+        doc.setTextColor(196, 107, 59);
+        doc.text('FLYER INDUSTRIES', 20, 30);
+        
+        doc.setFontSize(16);
+        doc.setTextColor(0, 0, 0);
+        doc.text('Financial Report', 20, 50);
+        
+        doc.setFontSize(12);
+        doc.text('Period: March 2026', 20, 65);
+        
+        const data = [
+          ['Monthly Revenue', 'IDR 24,956,240'],
+          ['Transactions', '240'],
+          ['Gross Margin', '47.8%']
+        ];
+        
+        let y = 85;
+        data.forEach(function(row) {
+          doc.text(row[0], 25, y);
+          doc.text(row[1], 100, y);
+          y += 15;
+        });
+        
+        doc.save('Flyer_Report_' + new Date().toISOString().split('T')[0] + '.pdf');
+        alert('PDF generated successfully!');
+      } catch(e) {
+        console.error('PDF generation error:', e);
+        alert('Error generating PDF. Please try again.');
       }
-      .header { 
-        display: flex; 
-        justify-content: space-between; 
-        margin-bottom: 30px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid #eee;
-      }
-      .logo { 
-        font-weight: bold; 
-        font-size: 24px;
-        font-style: italic;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-      }
-      th, td {
-        text-align: left;
-        padding: 12px;
-        border-bottom: 1px solid #eee;
-      }
-      th {
-        background: #f5f5f5;
-        font-weight: 600;
-      }
-      .total {
-        font-weight: bold;
-        background: #f9f9f9;
-      }
-    </style></head>
-    <body>
-      <div class="header">
-        <div class="logo">FLYER INDUSTRIES</div>
-        <div>${new Date().toLocaleDateString()}</div>
-      </div>
-      <h1>${title}</h1>
-      <p>This is a preview of the PDF document. In production, this would display the actual PDF content.</p>
-      <table>
-        <tr><th>Item</th><th>Description</th><th>Amount</th></tr>
-        <tr><td>1</td><td>Sample Data Row 1</td><td>IDR 1,000,000</td></tr>
-        <tr><td>2</td><td>Sample Data Row 2</td><td>IDR 2,500,000</td></tr>
-        <tr><td>3</td><td>Sample Data Row 3</td><td>IDR 750,000</td></tr>
-        <tr class="total"><td colspan="2">Total</td><td>IDR 4,250,000</td></tr>
-      </table>
-      <p style="margin-top: 40px; color: #666; font-size: 12px;">
-        Generated by Flyer Industries Command Center • J.A.R.V.I.S. System
-      </p>
-    </body>
-    </html>
-  `;
-}
-
-// PDF Generation
-function generatePDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  
-  // Header
-  doc.setFontSize(22);
-  doc.setTextColor(196, 107, 59);
-  doc.text('FLYER INDUSTRIES', 20, 30);
-  
-  doc.setFontSize(12);
-  doc.setTextColor(100, 100, 100);
-  doc.text('Command Center Report', 20, 40);
-  doc.text(new Date().toLocaleDateString(), 180, 30, { align: 'right' });
-  
-  // Content
-  doc.setFontSize(16);
-  doc.setTextColor(0, 0, 0);
-  doc.text('Monthly Financial Summary', 20, 60);
-  
-  doc.setFontSize(12);
-  doc.text('Period: February 21 - March 7, 2026', 20, 70);
-  
-  // Table
-  doc.setFillColor(245, 245, 245);
-  doc.rect(20, 80, 170, 10, 'F');
-  doc.setFontSize(11);
-  doc.setFont(undefined, 'bold');
-  doc.text('Metric', 25, 87);
-  doc.text('Value', 100, 87);
-  
-  doc.setFont(undefined, 'normal');
-  const data = [
-    ['Monthly Revenue', 'IDR 24,956,240'],
-    ['Gross Sales', 'IDR 27,578,640'],
-    ['Transactions', '240'],
-    ['Gross Margin', '47.8%'],
-    ['Food Cost', '32.4%']
-  ];
-  
-  let y = 97;
-  data.forEach(function(row) {
-    doc.text(row[0], 25, y);
-    doc.text(row[1], 100, y);
-    y += 10;
-  });
-  
-  // Footer
-  doc.setFontSize(10);
-  doc.setTextColor(150, 150, 150);
-  doc.text('Generated by Flyer Industries Command Center', 20, 280);
-  doc.text('J.A.R.V.I.S. System', 20, 285);
-  
-  // Save
-  doc.save('Flyer_Industries_Report_' + new Date().toISOString().split('T')[0] + '.pdf');
-  
-  alert('PDF generated and downloaded!');
-}
-
-function downloadPDF() {
-  if (currentPDF) {
-    generatePDF();
-  }
-}
-
-function sendToTelegram() {
-  // This would integrate with your Telegram bot
-  alert('PDF sent to Telegram! (Integration ready)');
-  closeDocModal();
-}
-
-// Calendar Generation
-function generateCalendar() {
-  const grid = document.getElementById('calGrid');
-  if (!grid) return;
-  
-  const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-  const html = [];
-  
-  // Day headers
-  days.forEach(function(day) {
-    html.push('<div class="cal-dow">' + day + '</div>');
-  });
-  
-  // March 2026 starts on Sunday
-  const startDay = 0;
-  const daysInMonth = 31;
-  const today = new Date().getDate();
-  
-  // Empty cells before start
-  for (let i = 0; i < startDay; i++) {
-    html.push('<div class="cal-day other-month"></div>');
-  }
-  
-  // Days
-  for (let day = 1; day <= daysInMonth; day++) {
-    let classes = 'cal-day';
-    if (day === today) classes += ' today';
-    if ([5, 12, 19, 26].includes(day)) classes += ' has-event';
-    html.push('<div class="' + classes + '" onclick="showDayDetails(' + day + ')">' + day + '</div>');
-  }
-  
-  grid.innerHTML = html.join('');
-}
-
-function showDayDetails(day) {
-  console.log('Selected day:', day);
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-  // Set current date
-  const dateEl = document.getElementById('currentDate');
-  if (dateEl) {
-    const now = new Date();
-    dateEl.textContent = now.toLocaleDateString('en-US', { 
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+    }
+    
+    // Event listeners - wait for DOM
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, setting up event listeners');
+      
+      // Sidebar nav buttons
+      document.querySelectorAll('.nav-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          const view = this.dataset.view;
+          if (view) navigateTo(view);
+        });
+      });
+      
+      // Mobile nav buttons
+      document.querySelectorAll('.mnav-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          const view = this.dataset.view;
+          if (view) navigateTo(view);
+        });
+      });
+      
+      // Dashboard cards
+      document.querySelectorAll('[data-nav]').forEach(function(el) {
+        el.addEventListener('click', function() {
+          const view = this.dataset.nav;
+          if (view) navigateTo(view);
+        });
+      });
+      
+      // Back buttons
+      document.getElementById('backFromCrafted').addEventListener('click', function() {
+        navigateTo('dashboard');
+      });
+      document.getElementById('backFromAscend').addEventListener('click', function() {
+        navigateTo('dashboard');
+      });
+      document.getElementById('backFromPdfs').addEventListener('click', function() {
+        navigateTo('dashboard');
+      });
+      document.getElementById('backFromTaxmate').addEventListener('click', function() {
+        navigateTo('dashboard');
+      });
+      
+      // Tab buttons
+      document.querySelectorAll('.tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          const tabId = this.dataset.tab;
+          if (tabId) switchTab(this, tabId);
+        });
+      });
+      
+      // Menu button (mobile)
+      document.getElementById('menuBtn').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('active');
+      });
+      
+      // Sidebar overlay
+      document.getElementById('sidebarOverlay').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.remove('open');
+        this.classList.remove('active');
+      });
+      
+      // Modal close
+      document.getElementById('closeModal').addEventListener('click', closeModal);
+      document.getElementById('modal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+      });
+      
+      // Download button
+      document.getElementById('downloadBtn').addEventListener('click', generatePDF);
+      
+      // Telegram button
+      document.getElementById('telegramBtn').addEventListener('click', function() {
+        alert('Sending to Telegram... (Integration ready)');
+        closeModal();
+      });
+      
+      // Generate PDF button
+      document.getElementById('generatePdfBtn').addEventListener('click', generatePDF);
+      
+      // Restore last view
+      try {
+        const saved = localStorage.getItem('currentView');
+        if (saved && saved !== 'dashboard') {
+          navigateTo(saved);
+        }
+      } catch(e) {}
+      
+      console.log('Event listeners setup complete');
     });
-  }
-  
-  // Generate calendar
-  generateCalendar();
-  
-  // Restore last view
-  try {
-    const savedView = localStorage.getItem('flyerActiveView');
-    if (savedView && document.getElementById('view-' + savedView)) {
-      showView(savedView);
-    }
-  } catch (e) {}
-  
-  // Load Supabase data
-  loadData();
-});
-
-// Load data from Supabase
-async function loadData() {
-  try {
-    const { data: summary, error } = await supabase
-      .from('monthly_summaries')
-      .select('*')
-      .eq('business_id', 1)
-      .order('created_at', { ascending: false })
-      .limit(1);
-
-    if (summary && summary.length > 0) {
-      const data = summary[0];
-      const revenueEl = document.getElementById('stat-revenue');
-      if (revenueEl) {
-        revenueEl.textContent = 'IDR ' + (Number(data.total_revenue) / 1000000).toFixed(1) + 'M';
-      }
-    }
-  } catch (error) {
-    console.error('Error loading data:', error);
-  }
-}
-</script>
-
+  </script>
 </body>
 </html>
