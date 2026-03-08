@@ -1,1667 +1,711 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flyer Industries | Command Center</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-bg: #0a0e27;
-            --secondary-bg: #111936;
-            --card-bg: rgba(17, 25, 54, 0.8);
-            --accent-blue: #00d4ff;
-            --accent-gold: #ffd700;
-            --accent-cyan: #00fff5;
-            --text-primary: #ffffff;
-            --text-secondary: #8b9bb4;
-            --border-color: rgba(0, 212, 255, 0.2);
-            --gradient-1: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
-            --gradient-2: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
-            --gradient-3: linear-gradient(135deg, #00fff5 0%, #00ccaa 100%);
-            --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.3);
-            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            font-family: 'Inter', sans-serif;
-            background: var(--primary-bg);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-            touch-action: manipulation;
-        }
-
-        /* Animated Background */
-        .bg-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: 
-                radial-gradient(ellipse at 20% 20%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(0, 255, 245, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
-            animation: bgPulse 8s ease-in-out infinite;
-        }
-
-        @keyframes bgPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-
-        /* Header */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 80px;
-            background: rgba(10, 14, 39, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 40px;
-            z-index: 1000;
-        }
-
-        /* Stark-inspired Logo */
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .logo {
-            width: 60px;
-            height: 60px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-circle {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border: 3px solid var(--accent-blue);
-            border-radius: 50%;
-            animation: logoPulse 2s ease-in-out infinite;
-        }
-
-        .logo-inner {
-            position: absolute;
-            width: 70%;
-            height: 70%;
-            border: 2px solid var(--accent-gold);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-letter {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 28px;
-            font-weight: 900;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        @keyframes logoPulse {
-            0%, 100% { box-shadow: 0 0 10px rgba(0, 212, 255, 0.5); }
-            50% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.8); }
-        }
-
-        .logo-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 4px;
-            background: linear-gradient(135deg, #ffffff 0%, var(--accent-blue) 50%, var(--accent-gold) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-transform: uppercase;
-        }
-
-        .logo-subtitle {
-            font-size: 10px;
-            letter-spacing: 8px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
-
-        /* Header Stats */
-        .header-stats {
-            display: flex;
-            gap: 40px;
-        }
-
-        .header-stat {
-            text-align: right;
-        }
-
-        .header-stat-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--accent-cyan);
-        }
-
-        .header-stat-label {
-            font-size: 10px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: rgba(0, 255, 0, 0.1);
-            border: 1px solid rgba(0, 255, 0, 0.3);
-            border-radius: 20px;
-        }
-
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            background: #00ff00;
-            border-radius: 50%;
-            animation: livePulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes livePulse {
-            0%, 100% { opacity: 1; box-shadow: 0 0 5px #00ff00; }
-            50% { opacity: 0.5; box-shadow: 0 0 20px #00ff00; }
-        }
-
-        /* Layout */
-        .container {
-            display: flex;
-            margin-top: 80px;
-            min-height: calc(100vh - 80px);
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 280px;
-            background: var(--secondary-bg);
-            border-right: 1px solid var(--border-color);
-            padding: 30px 0;
-            position: fixed;
-            height: calc(100vh - 80px);
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .nav-section {
-            margin-bottom: 30px;
-        }
-
-        .nav-section-title {
-            padding: 0 25px 15px;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 15px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 16px 25px;
-            color: var(--text-secondary);
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-            position: relative;
-            overflow: hidden;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        .nav-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--gradient-1);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .nav-item:hover::before,
-        .nav-item.active::before {
-            opacity: 0.1;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            color: var(--accent-cyan);
-            border-left-color: var(--accent-cyan);
-            background: rgba(0, 212, 255, 0.05);
-        }
-
-        .nav-item i {
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .nav-item span {
-            position: relative;
-            z-index: 1;
-            font-weight: 500;
-            pointer-events: none;
-        }
-
-        /* Main Content */
-        .main {
-            flex: 1;
-            margin-left: 280px;
-            padding: 40px;
-            min-height: calc(100vh - 80px);
-        }
-
-        /* Tab Content */
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Welcome Section */
-        .welcome {
-            margin-bottom: 40px;
-        }
-
-        .welcome h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 42px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #ffffff 0%, var(--accent-blue) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .welcome p {
-            color: var(--text-secondary);
-            font-size: 16px;
-            letter-spacing: 1px;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 25px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: var(--gradient-1);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-glow);
-            border-color: var(--accent-blue);
-        }
-
-        .stat-card.gold::before {
-            background: var(--gradient-2);
-        }
-
-        .stat-card.cyan::before {
-            background: var(--gradient-3);
-        }
-
-        .stat-card.purple::before {
-            background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
-        }
-
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-bottom: 20px;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-        }
-
-        .stat-card.gold .stat-icon {
-            background: rgba(255, 215, 0, 0.1);
-            border-color: rgba(255, 215, 0, 0.3);
-        }
-
-        .stat-card.cyan .stat-icon {
-            background: rgba(0, 255, 245, 0.1);
-            border-color: rgba(0, 255, 245, 0.3);
-        }
-
-        .stat-card.purple .stat-icon {
-            background: rgba(168, 85, 247, 0.1);
-            border-color: rgba(168, 85, 247, 0.3);
-        }
-
-        .stat-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .stat-card.gold .stat-value {
-            color: var(--accent-gold);
-        }
-
-        .stat-card.cyan .stat-value {
-            color: var(--accent-cyan);
-        }
-
-        .stat-card.purple .stat-value {
-            color: #a855f7;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .stat-change {
-            margin-top: 15px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .stat-change.positive {
-            color: #00ff88;
-        }
-
-        .stat-change.negative {
-            color: #ff4757;
-        }
-
-        /* Cards Grid */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 25px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .card-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 18px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .card-badge {
-            padding: 6px 12px;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            font-size: 11px;
-            color: var(--accent-cyan);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Business Cards */
-        .business-cards {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .business-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 30px;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .business-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: var(--gradient-1);
-        }
-
-        .business-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-glow);
-            border-color: var(--accent-blue);
-        }
-
-        .business-card.crafted::before {
-            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
-        }
-
-        .business-card.ascend::before {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-
-        .business-card.taxmate::before {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        }
-
-        .business-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .business-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-        }
-
-        .business-card.crafted .business-icon {
-            background: rgba(139, 92, 246, 0.1);
-            border-color: rgba(139, 92, 246, 0.3);
-        }
-
-        .business-card.ascend .business-icon {
-            background: rgba(16, 185, 129, 0.1);
-            border-color: rgba(16, 185, 129, 0.3);
-        }
-
-        .business-card.taxmate .business-icon {
-            background: rgba(245, 158, 11, 0.1);
-            border-color: rgba(245, 158, 11, 0.3);
-        }
-
-        .business-info h3 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .business-info p {
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .business-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .business-card.crafted .business-value {
-            color: #8b5cf6;
-        }
-
-        .business-card.ascend .business-value {
-            color: #10b981;
-        }
-
-        .business-card.taxmate .business-value {
-            color: #f59e0b;
-        }
-
-        .business-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-        }
-
-        .business-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .business-btn:hover {
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
-        }
-
-        /* List Items */
-        .list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .list-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .list-item:hover {
-            background: rgba(0, 212, 255, 0.05);
-            border-color: rgba(0, 212, 255, 0.3);
-        }
-
-        .list-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .list-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-        }
-
-        .list-content h4 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .list-content p {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .list-right {
-            text-align: right;
-        }
-
-        .list-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--accent-cyan);
-        }
-
-        .status-badge {
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .status-badge.active {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            color: #00ff88;
-        }
-
-        .status-badge.pending {
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            color: var(--accent-gold);
-        }
-
-        .status-badge.alert {
-            background: rgba(255, 71, 87, 0.1);
-            border: 1px solid rgba(255, 71, 87, 0.3);
-            color: #ff4757;
-        }
-
-        /* Alerts */
-        .alert {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 20px 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            border-left: 4px solid;
-        }
-
-        .alert-warning {
-            background: rgba(255, 215, 0, 0.1);
-            border-color: var(--accent-gold);
-        }
-
-        .alert-danger {
-            background: rgba(255, 71, 87, 0.1);
-            border-color: #ff4757;
-        }
-
-        .alert-info {
-            background: rgba(0, 212, 255, 0.1);
-            border-color: var(--accent-blue);
-        }
-
-        .alert-icon {
-            font-size: 24px;
-        }
-
-        .alert-content {
-            flex: 1;
-        }
-
-        .alert-content strong {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .alert-content p {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        /* Loading Animation */
-        .loading-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(0, 212, 255, 0.2);
-            border-top-color: var(--accent-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 1400px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .business-cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .sidebar {
-                width: 80px;
-            }
-            .sidebar .nav-section-title,
-            .sidebar .nav-item span {
-                display: none;
-            }
-            .main {
-                margin-left: 80px;
-                padding: 25px;
-            }
-            .stats-grid,
-            .business-cards {
-                grid-template-columns: 1fr;
-            }
-            .cards-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Mobile Styles - Phones */
-        @media (max-width: 768px) {
-            /* Header Mobile */
-            .header {
-                height: 70px;
-                padding: 0 15px;
-            }
-            
-            .logo {
-                width: 45px;
-                height: 45px;
-            }
-            
-            .logo-letter {
-                font-size: 20px;
-            }
-            
-            .logo-text {
-                font-size: 16px;
-                letter-spacing: 2px;
-            }
-            
-            .logo-subtitle {
-                font-size: 8px;
-                letter-spacing: 4px;
-            }
-            
-            .header-stats {
-                display: none;
-            }
-            
-            /* Mobile Sidebar - Bottom Navigation */
-            .sidebar {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                top: auto;
-                width: 100%;
-                height: 70px;
-                border-right: none;
-                border-top: 1px solid var(--border-color);
-                display: flex;
-                flex-direction: row;
-                justify-content: space-around;
-                align-items: center;
-                padding: 0;
-                z-index: 1000;
-                background: rgba(10, 14, 39, 0.98);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                overflow-x: auto;
-                overflow-y: hidden;
-                scrollbar-width: none;
-                -ms-overflow-style: none;
-            }
-            
-            .sidebar::-webkit-scrollbar {
-                display: none;
-            }
-            
-            .nav-section {
-                margin: 0;
-                display: flex;
-                flex-direction: row;
-                width: 100%;
-                justify-content: space-around;
-            }
-            
-            .nav-section-title {
-                display: none !important;
-            }
-            
-            .nav-item {
-                flex-direction: column;
-                padding: 8px 10px;
-                gap: 4px;
-                border-left: none;
-                border-top: 3px solid transparent;
-                font-size: 11px;
-                min-width: 60px;
-                flex: 1;
-                justify-content: center;
-            }
-            
-            .nav-item:hover,
-            .nav-item.active {
-                border-left-color: transparent;
-                border-top-color: var(--accent-cyan);
-            }
-            
-            .nav-item i {
-                font-size: 20px;
-            }
-            
-            .nav-item span {
-                display: block !important;
-                font-size: 10px;
-            }
-            
-            /* Main Content Mobile */
-            .main {
-                margin-left: 0;
-                margin-bottom: 70px;
-                padding: 90px 15px 20px;
-            }
-            
-            .welcome h1 {
-                font-size: 28px;
-            }
-            
-            .welcome p {
-                font-size: 14px;
-            }
-            
-            /* Stats Grid Mobile */
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-                margin-bottom: 25px;
-            }
-            
-            .stat-card {
-                padding: 15px;
-                border-radius: 12px;
-            }
-            
-            .stat-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 18px;
-                margin-bottom: 12px;
-                border-radius: 10px;
-            }
-            
-            .stat-value {
-                font-size: 18px;
-            }
-            
-            .stat-label {
-                font-size: 10px;
-                letter-spacing: 1px;
-            }
-            
-            .stat-change {
-                font-size: 10px;
-                margin-top: 8px;
-            }
-            
-            /* Business Cards Mobile */
-            .business-cards {
-                grid-template-columns: 1fr;
-                gap: 15px;
-                margin-bottom: 25px;
-            }
-            
-            .business-card {
-                padding: 20px;
-                border-radius: 16px;
-            }
-            
-            .business-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 24px;
-                border-radius: 14px;
-            }
-            
-            .business-info h3 {
-                font-size: 18px;
-            }
-            
-            .business-value {
-                font-size: 26px;
-            }
-            
-            .business-btn {
-                padding: 10px 18px;
-                font-size: 12px;
-            }
-            
-            /* Cards Grid Mobile */
-            .cards-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-                margin-bottom: 25px;
-            }
-            
-            .card {
-                padding: 20px;
-                border-radius: 16px;
-            }
-            
-            .card-title {
-                font-size: 16px;
-            }
-            
-            .card-badge {
-                padding: 5px 10px;
-                font-size: 10px;
-            }
-            
-            /* List Items Mobile */
-            .list-item {
-                padding: 15px;
-            }
-            
-            .list-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 18px;
-            }
-            
-            .list-content h4 {
-                font-size: 14px;
-            }
-            
-            .list-content p {
-                font-size: 11px;
-            }
-            
-            .list-value {
-                font-size: 16px;
-            }
-            
-            .status-badge {
-                padding: 4px 10px;
-                font-size: 9px;
-            }
-            
-            /* Alerts Mobile */
-            .alert {
-                padding: 15px;
-                margin-bottom: 20px;
-            }
-            
-            .alert-icon {
-                font-size: 20px;
-            }
-            
-            .alert-content strong {
-                font-size: 13px;
-            }
-            
-            .alert-content p {
-                font-size: 12px;
-            }
-            
-            .live-indicator {
-                padding: 6px 12px;
-                font-size: 11px;
-            }
-        }
-
-        /* Small Phones */
-        @media (max-width: 380px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .nav-item {
-                min-width: 50px;
-                padding: 6px 8px;
-            }
-            
-            .nav-item span {
-                font-size: 9px;
-            }
-            
-            .nav-item i {
-                font-size: 18px;
-            }
-            
-            .welcome h1 {
-                font-size: 24px;
-            }
-            
-            .business-value {
-                font-size: 22px;
-            }
-        }
-
-        /* Landscape Mobile */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .sidebar {
-                height: 60px;
-            }
-            
-            .main {
-                margin-bottom: 60px;
-            }
-            
-            .nav-item {
-                padding: 5px 10px;
-            }
-            
-            .nav-item i {
-                font-size: 18px;
-            }
-            
-            .nav-item span {
-                font-size: 9px;
-            }
-        }
-
-        /* Touch Device Optimizations */
-        @media (pointer: coarse) {
-            .nav-item,
-            .business-card,
-            .business-btn,
-            .stat-card,
-            .list-item {
-                cursor: pointer;
-            }
-            
-            .nav-item:active,
-            .business-card:active,
-            .business-btn:active {
-                transform: scale(0.95);
-                transition: transform 0.1s ease;
-            }
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--secondary-bg);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-blue);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Flyer Industries — Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg: #12141c;
+  --surface: #1a1d27;
+  --surface-2: #222636;
+  --surface-3: #2a2e3e;
+  --border: rgba(255,255,255,.08);
+  --border-2: rgba(255,255,255,.12);
+  --text: #e8eaf0;
+  --text-muted: #8b90a0;
+  --text-faint: #5a5f72;
+  --primary: #5ba0d9;
+  --primary-dim: rgba(91,160,217,.15);
+  --accent: #c0c0c0;
+  --green: #5B8A5E;
+  --red: #C45B3B;
+  --orange: #C46B3B;
+  --purple: #9B7ED9;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --transition: 180ms cubic-bezier(.16,1,.3,1);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --sidebar-w: 240px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%; overflow: hidden;
+  font-family: var(--font); font-size: 14px;
+  color: var(--text); background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: var(--sidebar-w); background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  z-index: 100; transition: transform .25s ease;
+}
+.sidebar-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.fi-logo {
+  width: 32px; height: 32px;
+  border: 1.5px solid var(--accent);
+  border-radius: 6px;
+  display: flex; align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.fi-logo::before {
+  content: 'F';
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #c0c0c0, #f0f0f0, #a0a0a0);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.fi-wordmark {
+  font-family: var(--font-display); font-style: italic;
+  font-size: 16px; font-weight: 600;
+  background: linear-gradient(135deg, #c0c0c0, #f0f0f0, #a0a0a0);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.sidebar-nav {
+  flex: 1; overflow-y: auto; padding: 12px 10px;
+  overscroll-behavior: contain;
+}
+.nav-section-label {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--text-faint);
+  padding: 14px 8px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 9px 12px; border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--text-muted); cursor: pointer;
+  border: none; background: none; font-family: var(--font);
+  transition: background var(--transition), color var(--transition);
+}
+.nav-item:hover { background: var(--surface-2); color: var(--text); }
+.nav-item.active { background: var(--primary-dim); color: var(--primary); font-weight: 500; }
+.nav-item i { flex-shrink: 0; font-size: 16px; width: 18px; text-align: center; }
+.sidebar-footer {
+  padding: 12px 18px; border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--text-faint);
+}
+.live-indicator {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--green);
+}
+.live-dot {
+  width: 6px; height: 6px; background: var(--green);
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
+}
+
+/* --- TOPBAR (mobile) --- */
+.topbar {
+  display: none; position: fixed; top: 0; left: 0; right: 0;
+  height: 52px; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px; align-items: center; gap: 12px; z-index: 90;
+}
+.topbar-title { font-family: var(--font-display); font-style: italic; font-size: 15px; color: var(--accent); }
+.hamburger { color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 4px; }
+
+/* --- MAIN --- */
+.main-content {
+  margin-left: var(--sidebar-w);
+  height: 100dvh; overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 32px 32px 48px;
+}
+
+/* --- VIEWS --- */
+.view { display: none; }
+.view.active { display: block; }
+
+.back-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: none; border: none; color: var(--text-muted);
+  font-size: 13px; cursor: pointer; padding: 4px 0;
+  margin-bottom: 16px; font-family: var(--font);
+  transition: color var(--transition);
+}
+.back-btn:hover { color: var(--primary); }
+
+.view-title {
+  font-size: 22px; font-weight: 600; margin-bottom: 20px;
+}
+.view-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+
+/* --- HOME --- */
+.welcome-row {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 28px;
+}
+.welcome-title { font-size: 26px; font-weight: 600; }
+.welcome-sub { color: var(--text-muted); font-size: 14px; margin-top: 2px; }
+.welcome-date { color: var(--text-faint); font-size: 13px; }
+
+/* Hero Cards */
+.hero-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px; margin-bottom: 28px;
+}
+.hero-card {
+  position: relative; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.hero-card:hover {
+  border-color: var(--border-2);
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+.hero-card h3 { font-size: 15px; font-weight: 600; margin-top: 12px; }
+.hero-card p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.hero-icon { 
+  width: 40px; height: 40px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 8px;
+}
+.hero-badge {
+  position: absolute; top: 12px; right: 12px;
+  font-size: 10px; font-weight: 600; padding: 2px 8px;
+  border-radius: 20px; background: var(--primary-dim); color: var(--primary);
+}
+.hero-crafted { border-left: 3px solid var(--orange); }
+.hero-crafted .hero-icon { background: rgba(196,107,59,.1); }
+.hero-ascend { border-left: 3px solid var(--green); }
+.hero-ascend .hero-icon { background: rgba(91,138,94,.1); }
+.hero-taxmate { border-left: 3px solid var(--primary); }
+.hero-taxmate .hero-icon { background: var(--primary-dim); }
+
+/* Quick Stats */
+.quick-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px 16px;
+}
+.stat-label { display: block; font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+.stat-value { font-size: 20px; font-weight: 600; }
+
+/* Section Blocks */
+.section-block { margin-bottom: 28px; }
+.section-heading {
+  font-size: 15px; font-weight: 600; margin-bottom: 14px;
+  color: var(--text);
+}
+
+/* Two Column Layout */
+.home-bottom-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* List Items */
+.list-container { display: flex; flex-direction: column; gap: 2px; }
+.list-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: var(--radius-sm);
+  background: var(--surface); border: 1px solid var(--border);
+  margin-bottom: 8px;
+  transition: background var(--transition);
+}
+.list-item:hover { background: var(--surface-2); }
+.list-icon { 
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.list-content { flex: 1; min-width: 0; }
+.list-content h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.list-content p { font-size: 11px; color: var(--text-faint); }
+.list-value { font-size: 14px; font-weight: 600; color: var(--primary); }
+
+.status-badge {
+  font-size: 9px; font-weight: 700; padding: 2px 8px;
+  border-radius: 20px;
+}
+.status-badge.active { background: rgba(91,138,94,.15); color: var(--green); }
+.status-badge.pending { background: rgba(196,107,59,.15); color: var(--orange); }
+.status-badge.alert { background: rgba(196,91,59,.15); color: var(--red); }
+
+/* --- BOTTOM NAV (mobile) --- */
+.bottom-nav {
+  display: none; position: fixed; bottom: 0; left: 0; right: 0;
+  height: 60px; background: var(--surface);
+  border-top: 1px solid var(--border);
+  justify-content: space-around; align-items: center;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  z-index: 90;
+}
+.bnav-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: none; border: none; color: var(--text-faint);
+  font-size: 10px; font-family: var(--font); cursor: pointer;
+  padding: 6px 12px; transition: color var(--transition);
+}
+.bnav-btn.active { color: var(--primary); }
+.bnav-btn:hover { color: var(--text); }
+
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 95;
+}
+
+/* --- LOADING --- */
+.loading-spinner {
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px; color: var(--text-faint); font-size: 13px; gap: 10px;
+}
+.spinner-ring {
+  width: 20px; height: 20px; border: 2px solid var(--border-2);
+  border-top-color: var(--primary); border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .topbar { display: flex; }
+  .bottom-nav { display: flex; }
+  .main-content {
+    margin-left: 0; padding: 68px 16px 80px;
+    height: calc(100dvh - 60px);
+  }
+  .hero-grid { grid-template-columns: repeat(2, 1fr); }
+  .quick-stats { grid-template-columns: repeat(2, 1fr); }
+  .home-bottom-grid { grid-template-columns: 1fr; }
+  .welcome-row { flex-direction: column; gap: 4px; align-items: flex-start; }
+}
+
+@media (max-width: 480px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .quick-stats { grid-template-columns: 1fr; }
+}
+
+/* Touch optimizations */
+@media (pointer: coarse) {
+  .nav-item, .hero-card, .list-item, .bnav-btn {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nav-item:active, .hero-card:active, .bnav-btn:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+</style>
 </head>
 <body>
-    <div class="bg-animation"></div>
 
-    <!-- Header -->
-    <header class="header">
-        <div class="logo-container">
-            <div class="logo">
-                <div class="logo-circle"></div>
-                <div class="logo-inner">
-                    <span class="logo-letter">F</span>
-                </div>
-            </div>
-            <div>
-                <div class="logo-text">Flyer Industries</div>
-                <div class="logo-subtitle">Command Center</div>
-            </div>
-        </div>
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="fi-logo"></div>
+    <span class="fi-wordmark">Flyer Industries</span>
+  </div>
 
-        <div class="header-stats">
-            <div class="header-stat">
-                <div class="header-stat-value" id="header-revenue">IDR 0</div>
-                <div class="header-stat-label">Monthly Revenue</div>
-            </div>
-            <div class="header-stat">
-                <div class="header-stat-value" id="header-net">IDR 0</div>
-                <div class="header-stat-label">Net Position</div>
-            </div>
-        </div>
+  <nav class="sidebar-nav" id="sidebarNav">
+    <button class="nav-item active" data-view="dashboard" onclick="showView('dashboard')">
+      <i class="fas fa-home"></i>
+      Dashboard
+    </button>
+    
+    <div class="nav-section-label">Businesses</div>
+    <button class="nav-item" data-view="crafted" onclick="showView('crafted')">
+      <i class="fas fa-coffee"></i>
+      Crafted
+    </button>
+    <button class="nav-item" data-view="ascend" onclick="showView('ascend')">
+      <i class="fas fa-building"></i>
+      Ascend Estate
+    </button>
+    <button class="nav-item" data-view="taxmate" onclick="showView('taxmate')">
+      <i class="fas fa-file-invoice-dollar"></i>
+      TaxMate
+    </button>
+    
+    <div class="nav-section-label">Operations</div>
+    <button class="nav-item" data-view="projects" onclick="showView('projects')">
+      <i class="fas fa-project-diagram"></i>
+      Projects
+    </button>
+    <button class="nav-item" data-view="properties" onclick="showView('properties')">
+      <i class="fas fa-home"></i>
+      Properties
+    </button>
+    <button class="nav-item" data-view="inventory" onclick="showView('inventory')">
+      <i class="fas fa-boxes"></i>
+      Inventory
+    </button>
+    
+    <div class="nav-section-label">System</div>
+    <button class="nav-item" data-view="settings" onclick="showView('settings')">
+      <i class="fas fa-cog"></i>
+      Settings
+    </button>
+  </nav>
 
-        <div class="live-indicator">
-            <div class="live-dot"></div>
-            <span>LIVE</span>
-        </div>
-    </header>
+  <div class="sidebar-footer">
+    <div class="live-indicator">
+      <div class="live-dot"></div>
+      <span>LIVE</span>
+    </div>
+  </div>
+</aside>
 
-    <div class="container">
-        <!-- Sidebar -->
-        <nav class="sidebar" id="sidebar">
-            <div class="nav-section">
-                <div class="nav-section-title">Overview</div>
-                <div class="nav-item active" data-tab="dashboard">
-                    <i class="fas fa-th-large"></i>
-                    <span>Dashboard</span>
-                </div>
-                <div class="nav-item" data-tab="analytics">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Analytics</span>
-                </div>
-                <div class="nav-item" data-tab="finances">
-                    <i class="fas fa-wallet"></i>
-                    <span>Finances</span>
-                </div>
-            </div>
+<!-- MOBILE TOP BAR -->
+<header class="topbar" id="topbar">
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+    <i class="fas fa-bars"></i>
+  </button>
+  <span class="topbar-title">Flyer Industries</span>
+</header>
 
-            <div class="nav-section">
-                <div class="nav-section-title">Businesses</div>
-                <div class="nav-item" data-tab="crafted">
-                    <i class="fas fa-coffee"></i>
-                    <span>Crafted</span>
-                </div>
-                <div class="nav-item" data-tab="ascend">
-                    <i class="fas fa-building"></i>
-                    <span>Ascend Estate</span>
-                </div>
-                <div class="nav-item" data-tab="taxmate">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    <span>TaxMate</span>
-                </div>
-            </div>
+<!-- MAIN CONTENT -->
+<main class="main-content" id="main">
 
-            <div class="nav-section">
-                <div class="nav-section-title">Operations</div>
-                <div class="nav-item" data-tab="projects">
-                    <i class="fas fa-project-diagram"></i>
-                    <span>Projects</span>
-                </div>
-                <div class="nav-item" data-tab="properties">
-                    <i class="fas fa-home"></i>
-                    <span>Properties</span>
-                </div>
-                <div class="nav-item" data-tab="inventory">
-                    <i class="fas fa-boxes"></i>
-                    <span>Inventory</span>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">System</div>
-                <div class="nav-item" data-tab="settings">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Main Content -->
-        <main class="main">
-            <!-- Dashboard Tab -->
-            <div id="dashboard" class="tab-content active">
-                <div class="welcome">
-                    <h1>Welcome, Tony</h1>
-                    <p>Flyer Industries Command Center — Real-time business intelligence</p>
-                </div>
-
-                <!-- Stats Grid -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-line" style="color: var(--accent-blue);"></i>
-                        </div>
-                        <div class="stat-value" id="stat-revenue">IDR 24.9M</div>
-                        <div class="stat-label">Monthly Revenue</div>
-                        <div class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i> +12.5% vs last period
-                        </div>
-                    </div>
-
-                    <div class="stat-card gold">
-                        <div class="stat-icon" style="color: var(--accent-gold);">
-                            <i class="fas fa-coins"></i>
-                        </div>
-                        <div class="stat-value" id="stat-profit">IDR 11.9M</div>
-                        <div class="stat-label">Gross Profit</div>
-                        <div class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i> +8.3% vs last period
-                        </div>
-                    </div>
-
-                    <div class="stat-card cyan">
-                        <div class="stat-icon" style="color: var(--accent-cyan);">
-                            <i class="fas fa-exchange-alt"></i>
-                        </div>
-                        <div class="stat-value" id="stat-transactions">240</div>
-                        <div class="stat-label">Transactions</div>
-                        <div class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i> +5.2% vs last period
-                        </div>
-                    </div>
-
-                    <div class="stat-card purple">
-                        <div class="stat-icon" style="color: #a855f7;">
-                            <i class="fas fa-percentage"></i>
-                        </div>
-                        <div class="stat-value">47.8%</div>
-                        <div class="stat-label">Profit Margin</div>
-                        <div class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i> +2.1% vs last period
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Business Cards -->
-                <div class="business-cards">
-                    <div class="business-card crafted" data-tab="crafted">
-                        <div class="business-header">
-                            <div class="business-icon">☕</div>
-                            <div class="business-info">
-                                <h3>Crafted</h3>
-                                <p>Coffee Shop</p>
-                            </div>
-                        </div>
-                        <div class="business-value" id="crafted-card-value">IDR 716K</div>
-                        <div class="business-label">Today's Revenue</div>
-                        <button class="business-btn">
-                            View Details <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-
-                    <div class="business-card ascend" data-tab="ascend">
-                        <div class="business-header">
-                            <div class="business-icon">🏡</div>
-                            <div class="business-info">
-                                <h3>Ascend Estate</h3>
-                                <p>Villa Management</p>
-                            </div>
-                        </div>
-                        <div class="business-value" id="ascend-card-value">IDR 2.03M</div>
-                        <div class="business-label">Petty Cash Balance</div>
-                        <button class="business-btn">
-                            View Details <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-
-                    <div class="business-card taxmate" data-tab="taxmate">
-                        <div class="business-header">
-                            <div class="business-icon">📋</div>
-                            <div class="business-info">
-                                <h3>TaxMate</h3>
-                                <p>Tax Services</p>
-                            </div>
-                        </div>
-                        <div class="business-value" style="font-size: 20px;">SETUP REQUIRED</div>
-                        <div class="business-label">Client Management</div>
-                        <button class="business-btn">
-                            Configure <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Cards Grid -->
-                <div class="cards-grid">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <i class="fas fa-exclamation-triangle" style="color: var(--accent-gold);"></i>
-                                Active Alerts
-                            </div>
-                            <span class="card-badge">3 Pending</span>
-                        </div>
-                        <div class="list-container">
-                            <div class="list-item">
-                                <div class="list-left">
-                                    <div class="list-icon" style="color: #ff4757;">⚠️</div>
-                                    <div class="list-content">
-                                        <h4>Food Cost Variance</h4>
-                                        <p>Banana consumption +60% over tolerance</p>
-                                    </div>
-                                </div>
-                                <span class="status-badge alert">Action</span>
-                            </div>
-                            <div class="list-item">
-                                <div class="list-left">
-                                    <div class="list-icon" style="color: var(--accent-gold);">📊</div>
-                                    <div class="list-content">
-                                        <h4>Mokapos Baseline</h4>
-                                        <p>Monthly revenue data needs import</p>
-                                    </div>
-                                </div>
-                                <span class="status-badge pending">Pending</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <i class="fas fa-hammer" style="color: #10b981;"></i>
-                                Active Projects
-                            </div>
-                            <span class="card-badge">2 Active</span>
-                        </div>
-                        <div class="list-container">
-                            <div class="list-item">
-                                <div class="list-left">
-                                    <div class="list-icon" style="color: #10b981;">🏗️</div>
-                                    <div class="list-content">
-                                        <h4>Villa Nativa</h4>
-                                        <p>New villa construction</p>
-                                    </div>
-                                </div>
-                                <span class="status-badge active">In Progress</span>
-                            </div>
-                            <div class="list-item">
-                                <div class="list-left">
-                                    <div class="list-icon" style="color: #10b981;">🏢</div>
-                                    <div class="list-content">
-                                        <h4>Taycana Apartments</h4>
-                                        <p>Apartment complex development</p>
-                                    </div>
-                                </div>
-                                <span class="status-badge active">In Progress</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Other Tabs Placeholders -->
-            <div id="crafted" class="tab-content">
-                <div class="welcome">
-                    <h1>☕ Crafted Coffee Shop</h1>
-                    <p>Berawa, Bali — Coffee Shop Operations</p>
-                </div>
-                <div class="alert alert-info">
-                    <div class="alert-icon">ℹ️</div>
-                    <div class="alert-content">
-                        <strong>Loading Crafted Data</strong>
-                        <p>Connecting to Supabase for real-time data...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="ascend" class="tab-content">
-                <div class="welcome">
-                    <h1>🏡 Ascend Estate</h1>
-                    <p>Villa Management & Real Estate</p>
-                </div>
-            </div>
-
-            <div id="taxmate" class="tab-content">
-                <div class="welcome">
-                    <h1>📋 TaxMate</h1>
-                    <p>Tax Services for Australian Clients</p>
-                </div>
-            </div>
-
-            <div id="analytics" class="tab-content">
-                <div class="welcome">
-                    <h1>📊 Analytics</h1>
-                    <p>Business Intelligence Dashboard</p>
-                </div>
-            </div>
-
-            <div id="finances" class="tab-content">
-                <div class="welcome">
-                    <h1>💰 Finances</h1>
-                    <p>Financial Overview & Reports</p>
-                </div>
-            </div>
-
-            <div id="projects" class="tab-content">
-                <div class="welcome">
-                    <h1>🏗️ Projects</h1>
-                    <p>Construction & Development</p>
-                </div>
-            </div>
-
-            <div id="properties" class="tab-content">
-                <div class="welcome">
-                    <h1>🏠 Properties</h1>
-                    <p>Villa & Resort Portfolio</p>
-                </div>
-            </div>
-
-            <div id="inventory" class="tab-content">
-                <div class="welcome">
-                    <h1>📦 Inventory</h1>
-                    <p>Stock & Supply Management</p>
-                </div>
-            </div>
-
-            <div id="settings" class="tab-content">
-                <div class="welcome">
-                    <h1>⚙️ Settings</h1>
-                    <p>System Configuration</p>
-                </div>
-            </div>
-        </main>
+  <!-- DASHBOARD VIEW -->
+  <div class="view active" id="view-dashboard">
+    <div class="welcome-row">
+      <div>
+        <h1 class="welcome-title">Welcome, Tony!</h1>
+        <p class="welcome-sub">Flyer Industries Command Center</p>
+      </div>
+      <div class="welcome-date" id="currentDate"></div>
     </div>
 
-    <script>
-        // Supabase Configuration
-        const SUPABASE_URL = 'https://kidbbtdnhtncxtaqqgcp.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_9tYmqkG3w3UWYToiuzzoSw_KNib98xb';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    <!-- Business Hero Cards -->
+    <div class="hero-grid">
+      <div class="hero-card hero-crafted" onclick="showView('crafted')">
+        <div class="hero-icon">☕</div>
+        <span class="hero-badge">Active</span>
+        <h3>Crafted</h3>
+        <p>Coffee Shop — Berawa, Bali</p>
+      </div>
+      
+      <div class="hero-card hero-ascend" onclick="showView('ascend')">
+        <div class="hero-icon">🏡</div>
+        <span class="hero-badge">Active</span>
+        <h3>Ascend Estate</h3>
+        <p>Villa Management — Bali</p>
+      </div>
+      
+      <div class="hero-card hero-taxmate" onclick="showView('taxmate')">
+        <div class="hero-icon">📋</div>
+        <span class="hero-badge">Setup</span>
+        <h3>TaxMate</h3>
+        <p>Tax Services — Australia</p>
+      </div>
+    </div>
 
-        // Tab Navigation - using data attributes instead of onclick
-        function showTab(tabName) {
-            // Hide all tabs
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(function(tab) {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected tab
-            const selectedTab = document.getElementById(tabName);
-            if (selectedTab) {
-                selectedTab.classList.add('active');
-                // Scroll to top smoothly
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-            
-            // Update nav items - remove active from all
-            const allNavs = document.querySelectorAll('.nav-item');
-            allNavs.forEach(function(nav) {
-                nav.classList.remove('active');
-            });
-            
-            // Add active to matching nav items
-            allNavs.forEach(function(item) {
-                if (item.dataset.tab === tabName) {
-                    item.classList.add('active');
-                }
-            });
-            
-            // Save current tab to localStorage
-            try {
-                localStorage.setItem('flyerActiveTab', tabName);
-            } catch (e) {
-                // localStorage not available
-            }
-        }
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+      <div class="stat-card">
+        <span class="stat-label">Monthly Revenue</span>
+        <span class="stat-value" id="stat-revenue">IDR 24.9M</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Transactions</span>
+        <span class="stat-value" id="stat-transactions">240</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Active Projects</span>
+        <span class="stat-value">2</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Properties</span>
+        <span class="stat-value">3</span>
+      </div>
+    </div>
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add click event listeners to all nav items
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(function(item) {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const tabName = this.dataset.tab;
-                    if (tabName) {
-                        showTab(tabName);
-                    }
-                });
-                
-                // Touch event for better mobile response
-                item.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
-                    const tabName = this.dataset.tab;
-                    if (tabName) {
-                        showTab(tabName);
-                    }
-                }, {passive: false});
-            });
-            
-            // Add click event listeners to business cards
-            const businessCards = document.querySelectorAll('.business-card');
-            businessCards.forEach(function(card) {
-                card.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const tabName = this.dataset.tab;
-                    if (tabName) {
-                        showTab(tabName);
-                    }
-                });
-                
-                // Touch event for mobile
-                card.addEventListener('touchend', function(e) {
-                    e.preventDefault();
-                    const tabName = this.dataset.tab;
-                    if (tabName) {
-                        showTab(tabName);
-                    }
-                });
-            });
-            
-            // Add click event to business buttons specifically
-            const businessBtns = document.querySelectorAll('.business-btn');
-            businessBtns.forEach(function(btn) {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Find parent card and get its tab
-                    const card = this.closest('.business-card');
-                    if (card) {
-                        const tabName = card.dataset.tab;
-                        if (tabName) {
-                            showTab(tabName);
-                        }
-                    }
-                });
-            });
-            
-            // Restore last active tab from localStorage
-            try {
-                const savedTab = localStorage.getItem('flyerActiveTab');
-                if (savedTab && document.getElementById(savedTab)) {
-                    showTab(savedTab);
-                }
-            } catch (e) {
-                // localStorage not available
-            }
-            
-            // Load data from Supabase
-            loadData();
-        });
+    <!-- Bottom Grid -->
+    <div class="home-bottom-grid">
+      <!-- Alerts Section -->
+      <div class="section-block">
+        <h2 class="section-heading">Active Alerts</h2>
+        <div class="list-container">
+          <div class="list-item">
+            <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">⚠️</div>
+            <div class="list-content">
+              <h4>Food Cost Variance</h4>
+              <p>Banana consumption +60% over tolerance</p>
+            </div>
+            <span class="status-badge alert">Action</span>
+          </div>
+          <div class="list-item">
+            <div class="list-icon" style="background: rgba(196,107,59,.1); color: var(--orange);">📊</div>
+            <div class="list-content">
+              <h4>Mokapos Baseline</h4>
+              <p>Monthly revenue data needs import</p>
+            </div>
+            <span class="status-badge pending">Pending</span>
+          </div>
+        </div>
+      </div>
 
-        // Load data from Supabase
-        async function loadData() {
-            try {
-                // Load monthly summary
-                const { data: summary, error } = await supabase
-                    .from('monthly_summaries')
-                    .select('*')
-                    .eq('business_id', 1)
-                    .order('created_at', { ascending: false })
-                    .limit(1);
+      <!-- Projects Section -->
+      <div class="section-block">
+        <h2 class="section-heading">Active Projects</h2>
+        <div class="list-container">
+          <div class="list-item">
+            <div class="list-icon" style="background: rgba(91,138,94,.1); color: var(--green);">🏗️</div>
+            <div class="list-content">
+              <h4>Villa Nativa</h4>
+              <p>New villa construction</p>
+            </div>
+            <span class="status-badge active">In Progress</span>
+          </div>
+          <div class="list-item">
+            <div class="list-icon" style="background: rgba(91,138,94,.1); color: var(--green);">🏢</div>
+            <div class="list-content">
+              <h4>Taycana Apartments</h4>
+              <p>Apartment complex development</p>
+            </div>
+            <span class="status-badge active">In Progress</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                if (summary && summary.length > 0) {
-                    const data = summary[0];
-                    const revenue = Number(data.total_revenue).toLocaleString('id-ID');
-                    const net = Number(data.net_position).toLocaleString('id-ID');
-                    
-                    const revenueEl = document.getElementById('header-revenue');
-                    const netEl = document.getElementById('header-net');
-                    
-                    if (revenueEl) revenueEl.textContent = 'IDR ' + revenue;
-                    if (netEl) netEl.textContent = 'IDR ' + net;
-                }
-            } catch (error) {
-                console.error('Error loading data:', error);
-            }
-        }
-    </script>
+  <!-- CRAFTED VIEW -->
+  <div class="view" id="view-crafted">
+    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
+    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+      <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(196,107,59,.15); display: flex; align-items: center; justify-content: center; font-size: 24px;">☕</div>
+      <div>
+        <h1 class="view-title" style="margin-bottom: 0;">Crafted Coffee Shop</h1>
+        <p style="color: var(--text-muted); font-size: 13px;">Berawa, Bali — Coffee Shop Operations</p>
+      </div>
+    </div>
+    <div class="quick-stats" style="grid-template-columns: repeat(2, 1fr);">
+      <div class="stat-card">
+        <span class="stat-label">Today's Revenue</span>
+        <span class="stat-value" style="color: var(--orange);">IDR 716K</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Gross Margin</span>
+        <span class="stat-value" style="color: var(--green);">47.8%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASCEND VIEW -->
+  <div class="view" id="view-ascend">
+    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
+    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+      <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(91,138,94,.15); display: flex; align-items: center; justify-content: center; font-size: 24px;">🏡</div>
+      <div>
+        <h1 class="view-title" style="margin-bottom: 0;">Ascend Estate</h1>
+        <p style="color: var(--text-muted); font-size: 13px;">Villa Management & Real Estate</p>
+      </div>
+    </div>
+    <div class="quick-stats" style="grid-template-columns: repeat(2, 1fr);">
+      <div class="stat-card">
+        <span class="stat-label">Petty Cash Balance</span>
+        <span class="stat-value" style="color: var(--green);">IDR 2.03M</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Properties</span>
+        <span class="stat-value">3</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAXMATE VIEW -->
+  <div class="view" id="view-taxmate">
+    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
+    <h1 class="view-title">TaxMate</h1>
+    <p class="view-sub">Tax Services for Australian Clients</p>
+    <div style="padding: 40px; text-align: center; color: var(--text-faint);">
+      Setup required — configuration pending
+    </div>
+  </div>
+
+  <!-- PROJECTS VIEW -->
+  <div class="view" id="view-projects">
+    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
+    <h1 class="view-title">Projects</h1>
+    <p class="view-sub">Construction & Development</p>
+  </div>
+
+  <!-- PROPERTIES VIEW -->
+  <div class="view" id="view-properties">
+    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
+    <h1 class="view-title">Properties</h1>
+    <p class="view-sub">Villa & Resort Portfolio</p>
+  </div>
+
+  <!-- INVENTORY VIEW -->
+  <div class="view" id="view-inventory">
+    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
+    <h1 class="view-title">Inventory</h1>
+    <p class="view-sub">Stock & Supply Management</p>
+  </div>
+
+  <!-- SETTINGS VIEW -->
+  <div class="view" id="view-settings">
+    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
+    <h1 class="view-title">Settings</h1>
+    <p class="view-sub">System Configuration</p>
+  </div>
+
+</main>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bnav-btn active" onclick="showView('dashboard');setActiveNav(this)">
+    <i class="fas fa-home" style="font-size: 18px;"></i>
+    <span>Home</span>
+  </button>
+  <button class="bnav-btn" onclick="showView('crafted');setActiveNav(this)">
+    <i class="fas fa-coffee" style="font-size: 18px;"></i>
+    <span>Crafted</span>
+  </button>
+  <button class="bnav-btn" onclick="showView('ascend');setActiveNav(this)">
+    <i class="fas fa-building" style="font-size: 18px;"></i>
+    <span>Ascend</span>
+  </button>
+  <button class="bnav-btn" onclick="showView('settings');setActiveNav(this)">
+    <i class="fas fa-cog" style="font-size: 18px;"></i>
+    <span>Settings</span>
+  </button>
+</nav>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<script>
+// Supabase Configuration
+const SUPABASE_URL = 'https://kidbbtdnhtncxtaqqgcp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_9tYmqkG3w3UWYToiuzzoSw_KNib98xb';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// View Navigation
+function showView(viewName) {
+  // Hide all views
+  const views = document.querySelectorAll('.view');
+  views.forEach(function(view) {
+    view.classList.remove('active');
+  });
+  
+  // Show selected view
+  const selectedView = document.getElementById('view-' + viewName);
+  if (selectedView) {
+    selectedView.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  // Update sidebar nav items
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(function(item) {
+    item.classList.remove('active');
+    if (item.dataset.view === viewName) {
+      item.classList.add('active');
+    }
+  });
+  
+  // Close sidebar on mobile
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+  
+  // Save to localStorage
+  try {
+    localStorage.setItem('flyerActiveView', viewName);
+  } catch (e) {}
+}
+
+function setActiveNav(btn) {
+  const btns = document.querySelectorAll('.bnav-btn');
+  btns.forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('open');
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  // Set current date
+  const dateEl = document.getElementById('currentDate');
+  if (dateEl) {
+    const now = new Date();
+    dateEl.textContent = now.toLocaleDateString('en-US', { 
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+    });
+  }
+  
+  // Restore last view
+  try {
+    const savedView = localStorage.getItem('flyerActiveView');
+    if (savedView && document.getElementById('view-' + savedView)) {
+      showView(savedView);
+    }
+  } catch (e) {}
+  
+  // Load Supabase data
+  loadData();
+});
+
+// Load data from Supabase
+async function loadData() {
+  try {
+    const { data: summary, error } = await supabase
+      .from('monthly_summaries')
+      .select('*')
+      .eq('business_id', 1)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (summary && summary.length > 0) {
+      const data = summary[0];
+      const revenueEl = document.getElementById('stat-revenue');
+      if (revenueEl) {
+        revenueEl.textContent = 'IDR ' + (Number(data.total_revenue) / 1000000).toFixed(1) + 'M';
+      }
+    }
+  } catch (error) {
+    console.error('Error loading data:', error);
+  }
+}
+</script>
+
 </body>
 </html>
