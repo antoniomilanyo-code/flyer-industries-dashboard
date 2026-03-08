@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Flyer Industries | Command Center</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -29,14 +29,16 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        body {
+        html, body {
             font-family: 'Inter', sans-serif;
             background: var(--primary-bg);
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            touch-action: manipulation;
         }
 
         /* Animated Background */
@@ -68,6 +70,7 @@
             height: 80px;
             background: rgba(10, 14, 39, 0.95);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
@@ -210,6 +213,7 @@
             position: fixed;
             height: calc(100vh - 80px);
             overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .nav-section {
@@ -239,6 +243,8 @@
             border-left: 3px solid transparent;
             position: relative;
             overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .nav-item::before {
@@ -271,12 +277,14 @@
             text-align: center;
             position: relative;
             z-index: 1;
+            pointer-events: none;
         }
 
         .nav-item span {
             position: relative;
             z-index: 1;
             font-weight: 500;
+            pointer-events: none;
         }
 
         /* Main Content */
@@ -284,12 +292,13 @@
             flex: 1;
             margin-left: 280px;
             padding: 40px;
+            min-height: calc(100vh - 80px);
         }
 
         /* Tab Content */
         .tab-content {
             display: none;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.4s ease;
         }
 
         .tab-content.active {
@@ -297,7 +306,7 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -874,11 +883,23 @@
                 z-index: 1000;
                 background: rgba(10, 14, 39, 0.98);
                 backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                overflow-x: auto;
+                overflow-y: hidden;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            
+            .sidebar::-webkit-scrollbar {
+                display: none;
             }
             
             .nav-section {
                 margin: 0;
-                display: contents;
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                justify-content: space-around;
             }
             
             .nav-section-title {
@@ -893,6 +914,8 @@
                 border-top: 3px solid transparent;
                 font-size: 11px;
                 min-width: 60px;
+                flex: 1;
+                justify-content: center;
             }
             
             .nav-item:hover,
@@ -1123,13 +1146,13 @@
             .stat-card,
             .list-item {
                 cursor: pointer;
-                -webkit-tap-highlight-color: transparent;
             }
             
             .nav-item:active,
             .business-card:active,
             .business-btn:active {
-                transform: scale(0.98);
+                transform: scale(0.95);
+                transition: transform 0.1s ease;
             }
         }
 
@@ -1190,18 +1213,18 @@
 
     <div class="container">
         <!-- Sidebar -->
-        <nav class="sidebar">
+        <nav class="sidebar" id="sidebar">
             <div class="nav-section">
                 <div class="nav-section-title">Overview</div>
-                <div class="nav-item active" onclick="showTab('dashboard')">
+                <div class="nav-item active" data-tab="dashboard">
                     <i class="fas fa-th-large"></i>
                     <span>Dashboard</span>
                 </div>
-                <div class="nav-item" onclick="showTab('analytics')">
+                <div class="nav-item" data-tab="analytics">
                     <i class="fas fa-chart-line"></i>
                     <span>Analytics</span>
                 </div>
-                <div class="nav-item" onclick="showTab('finances')">
+                <div class="nav-item" data-tab="finances">
                     <i class="fas fa-wallet"></i>
                     <span>Finances</span>
                 </div>
@@ -1209,15 +1232,15 @@
 
             <div class="nav-section">
                 <div class="nav-section-title">Businesses</div>
-                <div class="nav-item" onclick="showTab('crafted')">
+                <div class="nav-item" data-tab="crafted">
                     <i class="fas fa-coffee"></i>
                     <span>Crafted</span>
                 </div>
-                <div class="nav-item" onclick="showTab('ascend')">
+                <div class="nav-item" data-tab="ascend">
                     <i class="fas fa-building"></i>
                     <span>Ascend Estate</span>
                 </div>
-                <div class="nav-item" onclick="showTab('taxmate')">
+                <div class="nav-item" data-tab="taxmate">
                     <i class="fas fa-file-invoice-dollar"></i>
                     <span>TaxMate</span>
                 </div>
@@ -1225,15 +1248,15 @@
 
             <div class="nav-section">
                 <div class="nav-section-title">Operations</div>
-                <div class="nav-item" onclick="showTab('projects')">
+                <div class="nav-item" data-tab="projects">
                     <i class="fas fa-project-diagram"></i>
                     <span>Projects</span>
                 </div>
-                <div class="nav-item" onclick="showTab('properties')">
+                <div class="nav-item" data-tab="properties">
                     <i class="fas fa-home"></i>
                     <span>Properties</span>
                 </div>
-                <div class="nav-item" onclick="showTab('inventory')">
+                <div class="nav-item" data-tab="inventory">
                     <i class="fas fa-boxes"></i>
                     <span>Inventory</span>
                 </div>
@@ -1241,7 +1264,7 @@
 
             <div class="nav-section">
                 <div class="nav-section-title">System</div>
-                <div class="nav-item" onclick="showTab('settings')">
+                <div class="nav-item" data-tab="settings">
                     <i class="fas fa-cog"></i>
                     <span>Settings</span>
                 </div>
@@ -1306,7 +1329,7 @@
 
                 <!-- Business Cards -->
                 <div class="business-cards">
-                    <div class="business-card crafted" onclick="showTab('crafted')">
+                    <div class="business-card crafted" data-tab="crafted">
                         <div class="business-header">
                             <div class="business-icon">☕</div>
                             <div class="business-info">
@@ -1321,7 +1344,7 @@
                         </button>
                     </div>
 
-                    <div class="business-card ascend" onclick="showTab('ascend')">
+                    <div class="business-card ascend" data-tab="ascend">
                         <div class="business-header">
                             <div class="business-icon">🏡</div>
                             <div class="business-info">
@@ -1336,7 +1359,7 @@
                         </button>
                     </div>
 
-                    <div class="business-card taxmate" onclick="showTab('taxmate')">
+                    <div class="business-card taxmate" data-tab="taxmate">
                         <div class="business-header">
                             <div class="business-icon">📋</div>
                             <div class="business-info">
@@ -1499,27 +1522,91 @@
         const SUPABASE_KEY = 'sb_publishable_9tYmqkG3w3UWYToiuzzoSw_KNib98xb';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Tab Navigation
+        // Tab Navigation - using data attributes instead of onclick
         function showTab(tabName) {
             // Hide all tabs
             const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
+            tabs.forEach(function(tab) {
+                tab.classList.remove('active');
+            });
             
             // Show selected tab
-            document.getElementById(tabName).classList.add('active');
+            const selectedTab = document.getElementById(tabName);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+                // Scroll to top smoothly
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
             
-            // Update nav items
-            const navs = document.querySelectorAll('.nav-item');
-            navs.forEach(nav => nav.classList.remove('active'));
+            // Update nav items - remove active from all
+            const allNavs = document.querySelectorAll('.nav-item');
+            allNavs.forEach(function(nav) {
+                nav.classList.remove('active');
+            });
             
-            // Find and highlight current nav
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => {
-                if (item.getAttribute('onclick')?.includes(tabName)) {
+            // Add active to matching nav items
+            allNavs.forEach(function(item) {
+                if (item.dataset.tab === tabName) {
                     item.classList.add('active');
                 }
             });
+            
+            // Save current tab to localStorage
+            try {
+                localStorage.setItem('flyerActiveTab', tabName);
+            } catch (e) {
+                // localStorage not available
+            }
         }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click event listeners to all nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const tabName = this.dataset.tab;
+                    if (tabName) {
+                        showTab(tabName);
+                    }
+                });
+                
+                // Touch event for better mobile response
+                item.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    const tabName = this.dataset.tab;
+                    if (tabName) {
+                        showTab(tabName);
+                    }
+                }, {passive: false});
+            });
+            
+            // Add click event listeners to business cards
+            const businessCards = document.querySelectorAll('.business-card');
+            businessCards.forEach(function(card) {
+                card.addEventListener('click', function(e) {
+                    const tabName = this.dataset.tab;
+                    if (tabName) {
+                        showTab(tabName);
+                    }
+                });
+            });
+            
+            // Restore last active tab from localStorage
+            try {
+                const savedTab = localStorage.getItem('flyerActiveTab');
+                if (savedTab && document.getElementById(savedTab)) {
+                    showTab(savedTab);
+                }
+            } catch (e) {
+                // localStorage not available
+            }
+            
+            // Load data from Supabase
+            loadData();
+        });
 
         // Load data from Supabase
         async function loadData() {
@@ -1537,16 +1624,16 @@
                     const revenue = Number(data.total_revenue).toLocaleString('id-ID');
                     const net = Number(data.net_position).toLocaleString('id-ID');
                     
-                    document.getElementById('header-revenue').textContent = `IDR ${revenue}`;
-                    document.getElementById('header-net').textContent = `IDR ${net}`;
+                    const revenueEl = document.getElementById('header-revenue');
+                    const netEl = document.getElementById('header-net');
+                    
+                    if (revenueEl) revenueEl.textContent = 'IDR ' + revenue;
+                    if (netEl) netEl.textContent = 'IDR ' + net;
                 }
             } catch (error) {
                 console.error('Error loading data:', error);
             }
         }
-
-        // Load data on page load
-        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
