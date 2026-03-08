@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root {
   --bg: #12141c;
@@ -31,7 +32,6 @@
   --radius-sm: 6px;
   --transition: 180ms cubic-bezier(.16,1,.3,1);
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Playfair Display', Georgia, serif;
   --sidebar-w: 260px;
 }
 
@@ -110,29 +110,6 @@ html, body {
   padding: 20px 16px 16px;
   border-bottom: 1px solid var(--border);
 }
-.fi-logo {
-  width: 32px; height: 32px;
-  border: 1.5px solid var(--accent);
-  border-radius: 6px;
-  display: flex; align-items: center;
-  justify-content: center;
-  position: relative;
-}
-.fi-logo::before {
-  content: 'F';
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 16px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #c0c0c0, #f0f0f0, #a0a0a0);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
-.fi-wordmark {
-  font-family: var(--font-display); font-style: italic;
-  font-size: 16px; font-weight: 600;
-  background: linear-gradient(135deg, #c0c0c0, #f0f0f0, #a0a0a0);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
 .sidebar-nav {
   flex: 1; overflow-y: auto; padding: 12px 10px;
   overscroll-behavior: contain;
@@ -170,7 +147,7 @@ html, body {
   50% { opacity: .5; }
 }
 
-/* --- TOPBAR (mobile) --- */
+/* --- TOPBAR --- */
 .topbar {
   display: none; position: fixed; top: 0; left: 0; right: 0;
   height: 52px; background: var(--surface);
@@ -276,6 +253,9 @@ html, body {
 .section-heading {
   font-size: 15px; font-weight: 600; margin-bottom: 14px;
   color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* Two Column Layout */
@@ -292,6 +272,7 @@ html, body {
   background: var(--surface); border: 1px solid var(--border);
   margin-bottom: 8px;
   transition: background var(--transition);
+  cursor: pointer;
 }
 .list-item:hover { background: var(--surface-2); }
 .list-icon { 
@@ -312,7 +293,420 @@ html, body {
 .status-badge.pending { background: rgba(196,107,59,.15); color: var(--orange); }
 .status-badge.alert { background: rgba(196,91,59,.15); color: var(--red); }
 
-/* --- BOTTOM NAV (mobile) --- */
+/* --- CALENDAR WIDGET --- */
+.calendar-widget {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.cal-nav {
+  display: flex;
+  gap: 8px;
+}
+.cal-nav-btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+.cal-nav-btn:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+.cal-month-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+.cal-dow {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  padding: 4px 0;
+}
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all var(--transition);
+  position: relative;
+}
+.cal-day:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.cal-day.today {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+.cal-day.has-event::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  background: var(--orange);
+  border-radius: 50%;
+}
+.cal-day.other-month {
+  opacity: 0.3;
+}
+
+/* --- PROJECT TABS --- */
+.project-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+.ptab {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.ptab:hover { color: var(--text); }
+.ptab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.ptab-content { display: none; }
+.ptab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- KPI CARDS --- */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+.kpi-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+}
+.kpi-badge {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--surface-3);
+  color: var(--text-muted);
+}
+.kpi-badge.accent {
+  background: rgba(196,107,59,.15);
+  color: var(--orange);
+}
+.kpi-value {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 4px 0;
+}
+.kpi-delta {
+  font-size: 11px;
+  font-weight: 600;
+}
+.kpi-delta.up { color: var(--green); }
+.kpi-delta.down { color: var(--red); }
+.kpi-sub {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+/* --- PROGRESS BAR --- */
+.progress-track {
+  height: 8px;
+  background: var(--surface-3);
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--orange), #D4884E);
+  border-radius: 20px;
+  transition: width 0.8s cubic-bezier(.16,1,.3,1);
+}
+
+/* --- PROPERTY CARDS --- */
+.prop-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.prop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.prop-name {
+  font-size: 18px;
+  font-weight: 600;
+}
+.prop-type {
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.prop-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.prop-detail {
+  font-size: 13px;
+}
+.prop-detail-label {
+  display: block;
+  font-size: 10px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 2px;
+}
+
+/* --- TASK CHECKLIST --- */
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.task-item:last-child { border-bottom: none; }
+.task-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.task-check-empty {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-2);
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.task-check-empty:hover {
+  border-color: var(--green);
+}
+.task-item.done {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+.task-ai {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(155,126,217,.15);
+  color: var(--purple);
+  margin-left: auto;
+}
+
+/* --- DOCUMENT PREVIEW MODAL --- */
+.doc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.8);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.doc-modal-overlay.active { display: flex; }
+.doc-modal {
+  width: 100%;
+  max-width: 900px;
+  height: 80vh;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.doc-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.doc-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+.doc-modal-actions {
+  display: flex;
+  gap: 12px;
+}
+.doc-modal-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font);
+  transition: all var(--transition);
+}
+.doc-modal-btn.primary {
+  background: var(--primary);
+  color: #fff;
+}
+.doc-modal-btn.secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.doc-modal-btn:hover {
+  opacity: 0.9;
+}
+.doc-modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+.doc-modal-close:hover { color: var(--text); }
+.doc-modal-body {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+}
+.doc-modal-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #fff;
+  border-radius: var(--radius-sm);
+}
+
+/* --- PDF SECTION --- */
+.pdf-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.pdf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.pdf-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pdf-card:hover {
+  border-color: var(--primary);
+  background: var(--surface-3);
+}
+.pdf-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(196,91,59,.15);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red);
+  font-size: 18px;
+}
+.pdf-info {
+  flex: 1;
+}
+.pdf-name {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.pdf-meta {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+/* --- BOTTOM NAV --- */
 .bottom-nav {
   display: none; position: fixed; bottom: 0; left: 0; right: 0;
   height: 60px; background: var(--surface);
@@ -334,6 +728,7 @@ html, body {
   display: none; position: fixed; inset: 0;
   background: rgba(0,0,0,.5); z-index: 95;
 }
+.sidebar-overlay.open { display: block; }
 
 /* --- LOADING --- */
 .loading-spinner {
@@ -347,13 +742,10 @@ html, body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ==========================================
-   RESPONSIVE
-   ========================================== */
+/* --- RESPONSIVE --- */
 @media (max-width: 900px) {
   .sidebar { transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); }
-  .sidebar-overlay.open { display: block; }
   .topbar { display: flex; }
   .bottom-nav { display: flex; }
   .main-content {
@@ -363,27 +755,17 @@ html, body {
   .hero-grid { grid-template-columns: repeat(2, 1fr); }
   .quick-stats { grid-template-columns: repeat(2, 1fr); }
   .home-bottom-grid { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .welcome-row { flex-direction: column; gap: 4px; align-items: flex-start; }
 }
 
 @media (max-width: 480px) {
   .hero-grid { grid-template-columns: 1fr; }
   .quick-stats { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: 1fr; }
 }
 
-/* Touch optimizations */
-@media (pointer: coarse) {
-  .nav-item, .hero-card, .list-item, .bnav-btn {
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .nav-item:active, .hero-card:active, .bnav-btn:active {
-    transform: scale(0.98);
-    transition: transform 0.1s;
-  }
-}
-
-/* Scrollbar */
+/* --- SCROLLBAR --- */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--surface); }
 ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
@@ -433,6 +815,12 @@ html, body {
     <button class="nav-item" data-view="inventory" onclick="showView('inventory')">
       <i class="fas fa-boxes"></i>
       Inventory
+    </button>
+    
+    <div class="nav-section-label">Documents</div>
+    <button class="nav-item" data-view="pdfs" onclick="showView('pdfs')">
+      <i class="fas fa-file-pdf"></i>
+      PDF Reports
     </button>
     
     <div class="nav-section-label">System</div>
@@ -515,13 +903,26 @@ html, body {
       </div>
     </div>
 
-    <!-- Bottom Grid -->
+    <!-- Bottom Grid: Calendar + Alerts -->
     <div class="home-bottom-grid">
+      <!-- Calendar Widget -->
+      <div class="section-block">
+        <div class="section-heading">
+          <span>Calendar</span>
+          <span style="font-size: 11px; color: var(--text-faint);">March 2026</span>
+        </div>
+        <div class="calendar-widget">
+          <div class="cal-grid" id="calGrid">
+            <!-- Generated by JS -->
+          </div>
+        </div>
+      </div>
+
       <!-- Alerts Section -->
       <div class="section-block">
         <h2 class="section-heading">Active Alerts</h2>
         <div class="list-container">
-          <div class="list-item">
+          <div class="list-item" onclick="showView('crafted')">
             <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">⚠️</div>
             <div class="list-content">
               <h4>Food Cost Variance</h4>
@@ -529,7 +930,7 @@ html, body {
             </div>
             <span class="status-badge alert">Action</span>
           </div>
-          <div class="list-item">
+          <div class="list-item" onclick="showView('crafted')">
             <div class="list-icon" style="background: rgba(196,107,59,.1); color: var(--orange);">📊</div>
             <div class="list-content">
               <h4>Mokapos Baseline</h4>
@@ -539,27 +940,27 @@ html, body {
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Projects Section -->
-      <div class="section-block">
-        <h2 class="section-heading">Active Projects</h2>
-        <div class="list-container">
-          <div class="list-item">
-            <div class="list-icon" style="background: rgba(91,138,94,.1); color: var(--green);">🏗️</div>
-            <div class="list-content">
-              <h4>Villa Nativa</h4>
-              <p>New villa construction</p>
-            </div>
-            <span class="status-badge active">In Progress</span>
+    <!-- Projects Section -->
+    <div class="section-block">
+      <h2 class="section-heading">Active Projects</h2>
+      <div class="list-container">
+        <div class="list-item" onclick="showView('projects')">
+          <div class="list-icon" style="background: rgba(91,138,94,.1); color: var(--green);">🏗️</div>
+          <div class="list-content">
+            <h4>Villa Nativa</h4>
+            <p>New villa construction</p>
           </div>
-          <div class="list-item">
-            <div class="list-icon" style="background: rgba(91,138,94,.1); color: var(--green);">🏢</div>
-            <div class="list-content">
-              <h4>Taycana Apartments</h4>
-              <p>Apartment complex development</p>
-            </div>
-            <span class="status-badge active">In Progress</span>
+          <span class="status-badge active">In Progress</span>
+        </div>
+        <div class="list-item" onclick="showView('projects')">
+          <div class="list-icon" style="background: rgba(91,138,94,.1); color: var(--green);">🏢</div>
+          <div class="list-content">
+            <h4>Taycana Apartments</h4>
+            <p>Apartment complex development</p>
           </div>
+          <span class="status-badge active">In Progress</span>
         </div>
       </div>
     </div>
@@ -575,14 +976,156 @@ html, body {
         <p style="color: var(--text-muted); font-size: 13px;">Berawa, Bali — Coffee Shop Operations</p>
       </div>
     </div>
-    <div class="quick-stats" style="grid-template-columns: repeat(2, 1fr);">
-      <div class="stat-card">
-        <span class="stat-label">Today's Revenue</span>
-        <span class="stat-value" style="color: var(--orange);">IDR 716K</span>
+
+    <!-- Tabs -->
+    <div class="project-tabs">
+      <button class="ptab active" onclick="showProjectTab(this, 'crafted-dashboard')">Dashboard</button>
+      <button class="ptab" onclick="showProjectTab(this, 'crafted-tasks')">Tasks</button>
+      <button class="ptab" onclick="showProjectTab(this, 'crafted-docs')">Documents</button>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div class="ptab-content active" id="crafted-dashboard">
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Monthly Revenue</span>
+            <span class="kpi-badge accent">Latest</span>
+          </div>
+          <div class="kpi-value" style="color: var(--orange);">IDR 24.9M</div>
+          <div class="kpi-delta up">↑ 12.5% vs last period</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Gross Sales</span>
+          </div>
+          <div class="kpi-value">IDR 27.6M</div>
+          <div class="kpi-sub">Before discounts</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Food Cost</span>
+          </div>
+          <div class="kpi-value" style="color: var(--red);">32.4%</div>
+          <div class="kpi-delta down">↑ 5.2% over target</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Transactions</span>
+          </div>
+          <div class="kpi-value">240</div>
+          <div class="kpi-delta up">↑ 8.3% vs last period</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <span class="stat-label">Gross Margin</span>
-        <span class="stat-value" style="color: var(--green);">47.8%</span>
+
+      <!-- Progress Section -->
+      <div class="pdf-section">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+          <span style="font-size: 15px; font-weight: 600;">February Performance</span>
+          <span style="font-size: 12px; color: var(--text-faint);">Period: 21 Jan – 20 Feb 2026</span>
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="font-size: 13px;">Revenue Target</span>
+            <span style="font-size: 13px; font-weight: 600; color: var(--orange);">84.7%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: 84.7%;"></div>
+          </div>
+          <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 12px; color: var(--text-faint);">
+            <span>Actual: IDR 27.6M</span>
+            <span>Target: IDR 32.6M</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 24px; padding: 16px; background: var(--surface-2); border-radius: var(--radius-sm);">
+          <div style="text-align: center;">
+            <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase; margin-bottom: 4px;">Food Cost</div>
+            <div style="font-size: 20px; font-weight: 700;">28.3%</div>
+          </div>
+          <div style="width: 1px; background: var(--border-2);"></div>
+          <div style="text-align: center;">
+            <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase; margin-bottom: 4px;">Bev Cost</div>
+            <div style="font-size: 20px; font-weight: 700;">18.2%</div>
+          </div>
+          <div style="width: 1px; background: var(--border-2);"></div>
+          <div style="text-align: center;">
+            <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase; margin-bottom: 4px;">Labor</div>
+            <div style="font-size: 20px; font-weight: 700;">24.1%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks Tab -->
+    <div class="ptab-content" id="crafted-tasks">
+      <div class="pdf-section">
+        <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 16px;">Daily Checklist</h3>
+        
+        <div class="task-item done">
+          <div class="task-check"><i class="fas fa-check"></i></div>
+          <span>Check Mokapos sales data</span>
+          <span class="task-ai">AI</span>
+        </div>
+        
+        <div class="task-item done">
+          <div class="task-check"><i class="fas fa-check"></i></div>
+          <span>Verify petty cash entries</span>
+        </div>
+        
+        <div class="task-item">
+          <div class="task-check-empty" onclick="toggleTask(this)"></div>
+          <span>Review food cost variance report</span>
+          <span class="status-badge alert">Urgent</span>
+        </div>
+        
+        <div class="task-item">
+          <div class="task-check-empty" onclick="toggleTask(this)"></div>
+          <span>Update recipe costs in database</span>
+        </div>
+        
+        <div class="task-item">
+          <div class="task-check-empty" onclick="toggleTask(this)"></div>
+          <span>Export monthly summary PDF</span>
+          <span class="task-ai">AI</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents Tab -->
+    <div class="ptab-content" id="crafted-docs">
+      <div class="list-container">
+        <div class="list-item" onclick="openDocPreview('Daily_Report_March.pdf', 'Daily Report - March 2026')">
+          <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);"><i class="fas fa-file-pdf"></i></div>
+          <div class="list-content">
+            <h4>Daily Report - March 2026</h4>
+            <p>Financial summary & analysis</p>
+          </div>
+          <span class="list-value">PDF</span>
+        </div>
+        
+        <div class="list-item" onclick="openDocPreview('Recipe_Book.pdf', 'Barista Recipe Book')">
+          <div class="list-icon" style="background: rgba(91,160,217,.1); color: var(--primary);"><i class="fas fa-book"></i></div>
+          <div class="list-content">
+            <h4>Barista Recipe Book</h4>
+            <p>43 beverage recipes with costs</p>
+          </div>
+          <span class="list-value">PDF</span>
+        </div>
+        
+        <div class="list-item" onclick="openDocPreview('Kitchen_Recipes.pdf', 'Kitchen Recipe Book')">
+          <div class="list-icon" style="background: rgba(91,160,217,.1); color: var(--primary);"><i class="fas fa-utensils"></i></div>
+          <div class="list-content">
+            <h4>Kitchen Recipe Book</h4>
+            <p>18 food recipes with costs</p>
+          </div>
+          <span class="list-value">PDF</span>
+        </div>
       </div>
     </div>
   </div>
@@ -590,6 +1133,7 @@ html, body {
   <!-- ASCEND VIEW -->
   <div class="view" id="view-ascend">
     <button class="back-btn" onclick="showView('dashboard')">← Back</button>
+    
     <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
       <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(91,138,94,.15); display: flex; align-items: center; justify-content: center; font-size: 24px;">🏡</div>
       <div>
@@ -597,19 +1141,214 @@ html, body {
         <p style="color: var(--text-muted); font-size: 13px;">Villa Management & Real Estate</p>
       </div>
     </div>
-    <div class="quick-stats" style="grid-template-columns: repeat(2, 1fr);">
-      <div class="stat-card">
-        <span class="stat-label">Petty Cash Balance</span>
-        <span class="stat-value" style="color: var(--green);">IDR 2.03M</span>
+
+    <!-- Tabs -->
+    <div class="project-tabs">
+      <button class="ptab active" onclick="showProjectTab(this, 'ascend-properties')">Properties</button>
+      <button class="ptab" onclick="showProjectTab(this, 'ascend-petty')">Petty Cash</button>
+      <button class="ptab" onclick="showProjectTab(this, 'ascend-docs')">Documents</button>
+    </div>
+
+    <!-- Properties Tab -->
+    <div class="ptab-content active" id="ascend-properties">
+      
+      <!-- Villa Panamera -->
+      <div class="prop-card">
+        <div class="prop-header">
+          <div>
+            <div class="prop-name">Villa Panamera</div>
+            <div class="prop-type">Villa — Canggu</div>
+          </div>
+          <span class="status-badge active">Active</span>
+        </div>
+        
+        <div class="prop-details">
+          <div class="prop-detail">
+            <span class="prop-detail-label">Bedrooms</span>
+            <span>4</span>
+          </div>
+          <div class="prop-detail">
+            <span class="prop-detail-label">Bathrooms</span>
+            <span>4</span>
+          </div>
+          <div class="prop-detail">
+            <span class="prop-detail-label">Pool</span>
+            <span>Yes</span>
+          </div>
+          <div class="prop-detail">
+            <span class="prop-detail-label">Manager</span>
+            <span>Be Bali Group</span>
+          </div>
+          <div class="prop-detail">
+            <span class="prop-detail-label">Petty Cash</span>
+            <span style="color: var(--green);">IDR 2.03M</span>
+          </div>
+        </div>
       </div>
-      <div class="stat-card">
-        <span class="stat-label">Properties</span>
-        <span class="stat-value">3</span>
+
+      <!-- Golden Hour Villas -->
+      <div class="prop-card">
+        <div class="prop-header">
+          <div>
+            <div class="prop-name">Golden Hour Villas</div>
+            <div class="prop-type">Villa Complex — Dalung</div>
+          </div>
+          <span class="status-badge active">Active</span>
+        </div>
+        
+        <div class="prop-details">
+          <div class="prop-detail">
+            <span class="prop-detail-label">Villas</span>
+            <span>2 (Paradiso & Lotus)</span>
+          </div>
+          <div class="prop-detail">
+            <span class="prop-detail-label">Manager</span>
+            <span>Be Bali Group</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Black Sand Resort -->
+      <div class="prop-card">
+        <div class="prop-header">
+          <div>
+            <div class="prop-name">Black Sand Resort</div>
+            <div class="prop-type">Resort — Amed</div>
+          </div>
+          <span class="status-badge active">Active</span>
+        </div>
+        
+        <div class="prop-details">
+          <div class="prop-detail">
+            <span class="prop-detail-label">Type</span>
+            <span>Beach Resort</span>
+          </div>
+          <div class="prop-detail">
+            <span class="prop-detail-label">Location</span>
+            <span>Amed, East Bali</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Petty Cash Tab -->
+    <div class="ptab-content" id="ascend-petty">
+      <div class="pdf-section">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
+          <span style="font-size: 15px; font-weight: 600;">Be Bali Group — Petty Cash</span>
+          <span style="font-size: 12px; color: var(--text-faint);">Panamera & Golden Hour</span>
+        </div>
+
+        <div class="quick-stats" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+          <div class="stat-card">
+            <span class="stat-label">Opening Balance</span>
+            <span class="stat-value">IDR 2.12M</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Total Spent</span>
+            <span class="stat-value" style="color: var(--red);">IDR 88K</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Remaining</span>
+            <span class="stat-value" style="color: var(--green);">IDR 2.03M</span>
+          </div>
+        </div>
+
+        <div class="list-container">
+          <div class="list-item">
+            <div class="list-content">
+              <h4>Staff groceries</h4>
+              <p>Daily food supplies</p>
+            </div>
+            <span class="list-value" style="color: var(--red);">-IDR 50K</span>
+          </div>
+          
+          <div class="list-item">
+            <div class="list-content">
+              <h4>Gas for guests</h4>
+              <p>Motorbike rental fuel</p>
+            </div>
+            <span class="list-value" style="color: var(--red);">-IDR 38K</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents Tab -->
+    <div class="ptab-content" id="ascend-docs">
+      <div class="list-container">
+        <div class="list-item" onclick="openDocPreview('Property_Contract.pdf', 'Management Contract')">
+          <div class="list-icon" style="background: rgba(91,138,94,.1); color: var(--green);"><i class="fas fa-file-contract"></i></div>
+          <div class="list-content">
+            <h4>Management Contract</h4>
+            <p>Be Bali Group agreement</p>
+          </div>
+          <span class="list-value">PDF</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- TAXMATE VIEW -->
+  <!-- PDF REPORTS VIEW -->
+  <div class="view" id="view-pdfs">
+    <button class="back-btn" onclick="showView('dashboard')">← Back</button>
+    <h1 class="view-title">PDF Reports</h1>
+    <p class="view-sub">Generated reports available for download</p>
+
+    <!-- Generate New PDF Section -->
+    <div class="pdf-section">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Generate New Report</h3>
+          <p style="font-size: 12px; color: var(--text-faint);">Create professional PDF from current data</p>
+        </div>
+        <button class="doc-modal-btn primary" onclick="generatePDF()">
+          <i class="fas fa-file-pdf"></i> Generate PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Available PDFs -->
+    <div class="pdf-section">
+      <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 16px;">Available Reports</h3>
+      
+      <div class="pdf-grid">
+        <div class="pdf-card" onclick="openDocPreview('Daily_Report_March.pdf', 'Daily Financial Report')">
+          <div class="pdf-icon"><i class="fas fa-file-pdf"></i></div>
+          <div class="pdf-info">
+            <div class="pdf-name">Daily Financial Report</div>
+            <div class="pdf-meta">Generated: Today • 11:00 PM</div>
+          </div>
+        </div>
+
+        <div class="pdf-card" onclick="openDocPreview('Monthly_Summary.pdf', 'Monthly Summary')">
+          <div class="pdf-icon"><i class="fas fa-file-pdf"></i></div>
+          <div class="pdf-info">
+            <div class="pdf-name">Monthly Summary</div>
+            <div class="pdf-meta">Period: Feb 21 - Mar 7</div>
+          </div>
+        </div>
+
+        <div class="pdf-card" onclick="openDocPreview('Food_Cost_Analysis.pdf', 'Food Cost Analysis')">
+          <div class="pdf-icon"><i class="fas fa-file-pdf"></i></div>
+          <div class="pdf-info">
+            <div class="pdf-name">Food Cost Analysis</div>
+            <div class="pdf-meta">Alert: Banana variance</div>
+          </div>
+        </div>
+
+        <div class="pdf-card" onclick="openDocPreview('Recipe_Book.pdf', 'Recipe Book')">
+          <div class="pdf-icon"><i class="fas fa-book"></i></div>
+          <div class="pdf-info">
+            <div class="pdf-name">Recipe Book</div>
+            <div class="pdf-meta">43 beverages + 18 food</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTHER VIEWS -->
   <div class="view" id="view-taxmate">
     <button class="back-btn" onclick="showView('dashboard')">← Back</button>
     <h1 class="view-title">TaxMate</h1>
@@ -619,32 +1358,104 @@ html, body {
     </div>
   </div>
 
-  <!-- PROJECTS VIEW -->
   <div class="view" id="view-projects">
     <button class="back-btn" onclick="showView('dashboard')">← Back</button>
     <h1 class="view-title">Projects</h1>
     <p class="view-sub">Construction & Development</p>
+    
+    <div class="prop-card">
+      <div class="prop-header">
+        <div>
+          <div class="prop-name">Villa Nativa</div>
+          <div class="prop-type">New Construction</div>
+        </div>
+        <span class="status-badge active">In Progress</span>
+      </div>
+      <p style="color: var(--text-muted); margin-top: 12px;">New villa construction project. More details coming soon.</p>
+    </div>
+
+    <div class="prop-card">
+      <div class="prop-header">
+        <div>
+          <div class="prop-name">Taycana Apartments</div>
+          <div class="prop-type">Apartment Complex</div>
+        </div>
+        <span class="status-badge active">In Progress</span>
+      </div>
+      <p style="color: var(--text-muted); margin-top: 12px;">Apartment complex development. More details coming soon.</p>
+    </div>
   </div>
 
-  <!-- PROPERTIES VIEW -->
   <div class="view" id="view-properties">
     <button class="back-btn" onclick="showView('dashboard')">← Back</button>
     <h1 class="view-title">Properties</h1>
     <p class="view-sub">Villa & Resort Portfolio</p>
+    
+    <!-- Same as Ascend Properties -->
+    <div class="prop-card">
+      <div class="prop-header">
+        <div>
+          <div class="prop-name">Villa Panamera</div>
+          <div class="prop-type">Villa — Canggu</div>
+        </div>
+        <span class="status-badge active">Active</span>
+      </div>
+      <div class="prop-details">
+        <div class="prop-detail"><span class="prop-detail-label">Bedrooms</span><span>4</span></div>
+        <div class="prop-detail"><span class="prop-detail-label">Manager</span><span>Be Bali Group</span></div>
+      </div>
+    </div>
   </div>
 
-  <!-- INVENTORY VIEW -->
   <div class="view" id="view-inventory">
     <button class="back-btn" onclick="showView('dashboard')">← Back</button>
     <h1 class="view-title">Inventory</h1>
     <p class="view-sub">Stock & Supply Management</p>
+    
+    <div class="list-container">
+      <div class="list-item">
+        <div class="list-icon" style="background: rgba(196,107,59,.1); color: var(--orange);">☕</div>
+        <div class="list-content">
+          <h4>Coffee Beans</h4>
+          <p>Dark Panther Blend</p>
+        </div>
+        <span class="list-value">12 kg</span>
+      </div>
+      
+      <div class="list-item">
+        <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">🍌</div>
+        <div class="list-content">
+          <h4>Bananas</h4>
+          <p style="color: var(--red);">Stock alert — variance detected</p>
+        </div>
+        <span class="list-value" style="color: var(--red);">Low</span>
+      </div>
+    </div>
   </div>
 
-  <!-- SETTINGS VIEW -->
   <div class="view" id="view-settings">
     <button class="back-btn" onclick="showView('dashboard')">← Back</button>
     <h1 class="view-title">Settings</h1>
     <p class="view-sub">System Configuration</p>
+    
+    <div class="pdf-section">
+      <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 16px;">System Info</h3>
+      
+      <div class="prop-details">
+        <div class="prop-detail">
+          <span class="prop-detail-label">Version</span>
+          <span>2.0.0</span>
+        </div>
+        <div class="prop-detail">
+          <span class="prop-detail-label">Last Updated</span>
+          <span>March 8, 2026</span>
+        </div>
+        <div class="prop-detail">
+          <span class="prop-detail-label">Daily Check</span>
+          <span>11:00 PM WITA</span>
+        </div>
+      </div>
+    </div>
   </div>
 
 </main>
@@ -663,12 +1474,34 @@ html, body {
     <i class="fas fa-building" style="font-size: 18px;"></i>
     <span>Ascend</span>
   </button>
-  <button class="bnav-btn" onclick="showView('settings');setActiveNav(this)">
-    <i class="fas fa-cog" style="font-size: 18px;"></i>
-    <span>Settings</span>
+  <button class="bnav-btn" onclick="showView('pdfs');setActiveNav(this)">
+    <i class="fas fa-file-pdf" style="font-size: 18px;"></i>
+    <span>PDFs</span>
   </button>
 </nav>
 
+<!-- DOCUMENT PREVIEW MODAL -->
+<div class="doc-modal-overlay" id="docModal">
+  <div class="doc-modal">
+    <div class="doc-modal-header">
+      <span class="doc-modal-title" id="docModalTitle">Document Preview</span>
+      <div class="doc-modal-actions">
+        <button class="doc-modal-btn secondary" onclick="downloadPDF()">
+          <i class="fas fa-download"></i> Download
+        </button>
+        <button class="doc-modal-btn primary" onclick="sendToTelegram()">
+          <i class="fas fa-paper-plane"></i> Send to Telegram
+        </button>
+        <button class="doc-modal-close" onclick="closeDocModal()">&times;</button>
+      </div>
+    </div>
+    <div class="doc-modal-body">
+      <iframe class="doc-modal-frame" id="docModalFrame"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR OVERLAY -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <script>
@@ -676,6 +1509,9 @@ html, body {
 const SUPABASE_URL = 'https://kidbbtdnhtncxtaqqgcp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_9tYmqkG3w3UWYToiuzzoSw_KNib98xb';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// State
+let currentPDF = null;
 
 // View Navigation
 function showView(viewName) {
@@ -713,6 +1549,25 @@ function showView(viewName) {
   } catch (e) {}
 }
 
+// Project Tab Navigation
+function showProjectTab(btn, tabId) {
+  // Remove active from all tabs
+  const tabs = btn.parentElement.querySelectorAll('.ptab');
+  tabs.forEach(function(t) { t.classList.remove('active'); });
+  
+  // Add active to clicked tab
+  btn.classList.add('active');
+  
+  // Hide all tab contents
+  const contents = document.querySelectorAll('.ptab-content');
+  contents.forEach(function(c) { c.classList.remove('active'); });
+  
+  // Show selected content
+  const content = document.getElementById(tabId);
+  if (content) content.classList.add('active');
+}
+
+// Mobile Navigation
 function setActiveNav(btn) {
   const btns = document.querySelectorAll('.bnav-btn');
   btns.forEach(function(b) { b.classList.remove('active'); });
@@ -726,6 +1581,222 @@ function toggleSidebar() {
   if (overlay) overlay.classList.toggle('open');
 }
 
+// Task Toggle
+function toggleTask(el) {
+  const taskItem = el.closest('.task-item');
+  if (taskItem.classList.contains('done')) {
+    taskItem.classList.remove('done');
+    el.classList.remove('task-check');
+    el.classList.add('task-check-empty');
+    el.innerHTML = '';
+  } else {
+    taskItem.classList.add('done');
+    el.classList.remove('task-check-empty');
+    el.classList.add('task-check');
+    el.innerHTML = '<i class="fas fa-check"></i>';
+  }
+}
+
+// Document Preview Modal
+function openDocPreview(pdfUrl, title) {
+  currentPDF = { url: pdfUrl, title: title };
+  
+  const modal = document.getElementById('docModal');
+  const titleEl = document.getElementById('docModalTitle');
+  const frame = document.getElementById('docModalFrame');
+  
+  if (titleEl) titleEl.textContent = title;
+  if (frame) {
+    // For demo, show a placeholder. In production, this would be the actual PDF
+    frame.srcdoc = generatePDFPreview(title);
+  }
+  if (modal) modal.classList.add('active');
+}
+
+function closeDocModal() {
+  const modal = document.getElementById('docModal');
+  const frame = document.getElementById('docModalFrame');
+  if (modal) modal.classList.remove('active');
+  if (frame) frame.srcdoc = '';
+}
+
+function generatePDFPreview(title) {
+  return `
+    <html>
+    <head><style>
+      body { 
+        font-family: Arial, sans-serif; 
+        padding: 40px; 
+        background: #fff; 
+        color: #333;
+      }
+      h1 { 
+        color: #C46B3B; 
+        border-bottom: 3px solid #C46B3B;
+        padding-bottom: 10px;
+      }
+      .header { 
+        display: flex; 
+        justify-content: space-between; 
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+      }
+      .logo { 
+        font-weight: bold; 
+        font-size: 24px;
+        font-style: italic;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th, td {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+      }
+      th {
+        background: #f5f5f5;
+        font-weight: 600;
+      }
+      .total {
+        font-weight: bold;
+        background: #f9f9f9;
+      }
+    </style></head>
+    <body>
+      <div class="header">
+        <div class="logo">FLYER INDUSTRIES</div>
+        <div>${new Date().toLocaleDateString()}</div>
+      </div>
+      <h1>${title}</h1>
+      <p>This is a preview of the PDF document. In production, this would display the actual PDF content.</p>
+      <table>
+        <tr><th>Item</th><th>Description</th><th>Amount</th></tr>
+        <tr><td>1</td><td>Sample Data Row 1</td><td>IDR 1,000,000</td></tr>
+        <tr><td>2</td><td>Sample Data Row 2</td><td>IDR 2,500,000</td></tr>
+        <tr><td>3</td><td>Sample Data Row 3</td><td>IDR 750,000</td></tr>
+        <tr class="total"><td colspan="2">Total</td><td>IDR 4,250,000</td></tr>
+      </table>
+      <p style="margin-top: 40px; color: #666; font-size: 12px;">
+        Generated by Flyer Industries Command Center • J.A.R.V.I.S. System
+      </p>
+    </body>
+    </html>
+  `;
+}
+
+// PDF Generation
+function generatePDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  
+  // Header
+  doc.setFontSize(22);
+  doc.setTextColor(196, 107, 59);
+  doc.text('FLYER INDUSTRIES', 20, 30);
+  
+  doc.setFontSize(12);
+  doc.setTextColor(100, 100, 100);
+  doc.text('Command Center Report', 20, 40);
+  doc.text(new Date().toLocaleDateString(), 180, 30, { align: 'right' });
+  
+  // Content
+  doc.setFontSize(16);
+  doc.setTextColor(0, 0, 0);
+  doc.text('Monthly Financial Summary', 20, 60);
+  
+  doc.setFontSize(12);
+  doc.text('Period: February 21 - March 7, 2026', 20, 70);
+  
+  // Table
+  doc.setFillColor(245, 245, 245);
+  doc.rect(20, 80, 170, 10, 'F');
+  doc.setFontSize(11);
+  doc.setFont(undefined, 'bold');
+  doc.text('Metric', 25, 87);
+  doc.text('Value', 100, 87);
+  
+  doc.setFont(undefined, 'normal');
+  const data = [
+    ['Monthly Revenue', 'IDR 24,956,240'],
+    ['Gross Sales', 'IDR 27,578,640'],
+    ['Transactions', '240'],
+    ['Gross Margin', '47.8%'],
+    ['Food Cost', '32.4%']
+  ];
+  
+  let y = 97;
+  data.forEach(function(row) {
+    doc.text(row[0], 25, y);
+    doc.text(row[1], 100, y);
+    y += 10;
+  });
+  
+  // Footer
+  doc.setFontSize(10);
+  doc.setTextColor(150, 150, 150);
+  doc.text('Generated by Flyer Industries Command Center', 20, 280);
+  doc.text('J.A.R.V.I.S. System', 20, 285);
+  
+  // Save
+  doc.save('Flyer_Industries_Report_' + new Date().toISOString().split('T')[0] + '.pdf');
+  
+  alert('PDF generated and downloaded!');
+}
+
+function downloadPDF() {
+  if (currentPDF) {
+    generatePDF();
+  }
+}
+
+function sendToTelegram() {
+  // This would integrate with your Telegram bot
+  alert('PDF sent to Telegram! (Integration ready)');
+  closeDocModal();
+}
+
+// Calendar Generation
+function generateCalendar() {
+  const grid = document.getElementById('calGrid');
+  if (!grid) return;
+  
+  const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  const html = [];
+  
+  // Day headers
+  days.forEach(function(day) {
+    html.push('<div class="cal-dow">' + day + '</div>');
+  });
+  
+  // March 2026 starts on Sunday
+  const startDay = 0;
+  const daysInMonth = 31;
+  const today = new Date().getDate();
+  
+  // Empty cells before start
+  for (let i = 0; i < startDay; i++) {
+    html.push('<div class="cal-day other-month"></div>');
+  }
+  
+  // Days
+  for (let day = 1; day <= daysInMonth; day++) {
+    let classes = 'cal-day';
+    if (day === today) classes += ' today';
+    if ([5, 12, 19, 26].includes(day)) classes += ' has-event';
+    html.push('<div class="' + classes + '" onclick="showDayDetails(' + day + ')">' + day + '</div>');
+  }
+  
+  grid.innerHTML = html.join('');
+}
+
+function showDayDetails(day) {
+  console.log('Selected day:', day);
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
   // Set current date
@@ -736,6 +1807,9 @@ document.addEventListener('DOMContentLoaded', function() {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
     });
   }
+  
+  // Generate calendar
+  generateCalendar();
   
   // Restore last view
   try {
