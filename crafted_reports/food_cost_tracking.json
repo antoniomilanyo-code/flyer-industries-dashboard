@@ -1,0 +1,164 @@
+{
+  "monthly_periods": {},
+  "daily_sales": {
+    "2026-03-07": {
+      "Dark Panther": 5,
+      "Tropical Smash": 3,
+      "Flat White": 10,
+      "Chicken Sandwich": 2
+    }
+  },
+  "theoretical_usage": {
+    "2026-03-07": {
+      "banana": 500.0,
+      "protein_powder_chocolate": 150.0,
+      "oreo": 10.0,
+      "dates": 15.0,
+      "milk": 1000.0,
+      "avocado": 500.0,
+      "egg": 6.0,
+      "sourdough_bread": 3.0,
+      "edamame": 30.0,
+      "feta_cheese": 15.0,
+      "ground_coffee": 180.0,
+      "fresh_milk": 2000.0,
+      "chicken_breast": 140.0,
+      "romaine": 100.0,
+      "mozzarella": 80.0,
+      "sourdough": 200.0,
+      "tomato": 140.0
+    }
+  },
+  "actual_purchases": {
+    "2026-03-07": {
+      "banana": 800,
+      "avocado": 500,
+      "milk": 2000,
+      "egg": 20,
+      "ground_coffee": 200
+    }
+  },
+  "variances": {
+    "2026-03": {
+      "ground_coffee": {
+        "theoretical": 180.0,
+        "actual": 200.0,
+        "variance_qty": 20.0,
+        "variance_percent": 11.1,
+        "flagged": false
+      },
+      "oreo": {
+        "theoretical": 10.0,
+        "actual": 0,
+        "variance_qty": -10.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "romaine": {
+        "theoretical": 100.0,
+        "actual": 0,
+        "variance_qty": -100.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "edamame": {
+        "theoretical": 30.0,
+        "actual": 0,
+        "variance_qty": -30.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "egg": {
+        "theoretical": 6.0,
+        "actual": 20.0,
+        "variance_qty": 14.0,
+        "variance_percent": 233.3,
+        "flagged": true
+      },
+      "feta_cheese": {
+        "theoretical": 15.0,
+        "actual": 0,
+        "variance_qty": -15.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "mozzarella": {
+        "theoretical": 80.0,
+        "actual": 0,
+        "variance_qty": -80.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "sourdough": {
+        "theoretical": 200.0,
+        "actual": 0,
+        "variance_qty": -200.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "chicken_breast": {
+        "theoretical": 140.0,
+        "actual": 0,
+        "variance_qty": -140.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "protein_powder_chocolate": {
+        "theoretical": 150.0,
+        "actual": 0,
+        "variance_qty": -150.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "avocado": {
+        "theoretical": 500.0,
+        "actual": 500.0,
+        "variance_qty": 0.0,
+        "variance_percent": 0.0,
+        "flagged": false
+      },
+      "dates": {
+        "theoretical": 15.0,
+        "actual": 0,
+        "variance_qty": -15.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "sourdough_bread": {
+        "theoretical": 3.0,
+        "actual": 0,
+        "variance_qty": -3.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "milk": {
+        "theoretical": 1000.0,
+        "actual": 2000.0,
+        "variance_qty": 1000.0,
+        "variance_percent": 100.0,
+        "flagged": true
+      },
+      "fresh_milk": {
+        "theoretical": 2000.0,
+        "actual": 0,
+        "variance_qty": -2000.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "banana": {
+        "theoretical": 500.0,
+        "actual": 800.0,
+        "variance_qty": 300.0,
+        "variance_percent": 60.0,
+        "flagged": true
+      },
+      "tomato": {
+        "theoretical": 140.0,
+        "actual": 0,
+        "variance_qty": -140.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      }
+    }
+  }
+}
