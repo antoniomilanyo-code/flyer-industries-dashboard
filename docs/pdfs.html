@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flyer Industries - Dashboard</title>
+  <title>PDF Reports - Flyer Industries</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -97,79 +97,23 @@
       padding: 32px;
       min-height: 100vh;
     }
-    .header { margin-bottom: 28px; }
-    .header h1 { font-size: 26px; font-weight: 600; margin-bottom: 4px; }
-    .header p { color: var(--text-muted); font-size: 14px; }
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-    .card {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 20px;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-      text-decoration: none;
-      display: block;
-    }
-    .card:hover {
-      border-color: rgba(255,255,255,.12);
-      box-shadow: 0 4px 20px rgba(0,0,0,.3);
-    }
-    .card-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 20px;
-      background: var(--primary-dim);
-      color: var(--primary);
-    }
-    .card-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      display: flex;
+    .back-btn {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      margin-bottom: 12px;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 4px 0;
+      margin-bottom: 16px;
+      font-family: inherit;
+      text-decoration: none;
     }
-    .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
-    .card p { font-size: 12px; color: var(--text-muted); }
-    .card-crafted { border-left: 3px solid var(--orange); }
-    .card-crafted .card-icon { background: rgba(196,107,59,.1); }
-    .card-ascend { border-left: 3px solid var(--green); }
-    .card-ascend .card-icon { background: rgba(91,138,94,.1); }
-    .card-taxmate { border-left: 3px solid var(--primary); }
-    .card-taxmate .card-icon { background: var(--primary-dim); }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 28px;
-    }
-    .stat {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px 16px;
-    }
-    .stat-label {
-      font-size: 11px;
-      color: var(--text-faint);
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      margin-bottom: 4px;
-    }
-    .stat-value { font-size: 20px; font-weight: 600; }
+    .back-btn:hover { color: var(--primary); }
+    .page-title { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+    .page-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
     .section {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -210,14 +154,10 @@
       padding: 2px 8px;
       border-radius: 20px;
     }
-    .badge-green { background: rgba(91,138,94,.15); color: var(--green); }
     .badge-orange { background: rgba(196,107,59,.15); color: var(--orange); }
-    .badge-red { background: rgba(196,91,59,.15); color: var(--red); }
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); }
       .main { margin-left: 0; padding: 20px; }
-      .card-grid { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -229,7 +169,7 @@
       </div>
       <nav class="nav-section">
         <div class="nav-label">Businesses</div>
-        <a href="index.html" class="nav-btn active">
+        <a href="index.html" class="nav-btn">
           <i class="fas fa-home"></i> Dashboard
         </a>
         <a href="crafted.html" class="nav-btn">
@@ -239,75 +179,64 @@
           <i class="fas fa-building"></i> Ascend Estate
         </a>
         <div class="nav-label" style="margin-top: 20px;">Documents</div>
-        <a href="pdfs.html" class="nav-btn">
+        <a href="pdfs.html" class="nav-btn active">
           <i class="fas fa-file-pdf"></i> PDF Reports
         </a>
       </nav>
     </aside>
 
     <main class="main">
-      <div class="header">
-        <h1>Welcome, Tony!</h1>
-        <p>Flyer Industries Command Center</p>
-      </div>
+      <a href="index.html" class="back-btn">← Back</a>
+      <h1 class="page-title">PDF Reports</h1>
+      <p class="page-sub">Generated reports available for download</p>
 
-      <div class="card-grid">
-        <a href="crafted.html" class="card card-crafted">
-          <div class="card-icon">☕</div>
-          <span class="card-badge">Active</span>
-          <h3>Crafted</h3>
-          <p>Coffee Shop — Berawa, Bali</p>
+      <div class="section">
+        <h2>Crafted Reports</h2>
+        <a href="#" class="list-item">
+          <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">📄</div>
+          <div class="list-content">
+            <h4>Daily Financial Report</h4>
+            <p>Generated: Today • 11:00 PM</p>
+          </div>
+          <span class="badge badge-orange">PDF</span>
         </a>
-        <a href="ascend.html" class="card card-ascend">
-          <div class="card-icon">🏡</div>
-          <span class="card-badge">Active</span>
-          <h3>Ascend Estate</h3>
-          <p>Villa Management — Bali</p>
+        <a href="#" class="list-item">
+          <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">📄</div>
+          <div class="list-content">
+            <h4>Monthly Summary</h4>
+            <p>Period: Feb 21 - Mar 7</p>
+          </div>
+          <span class="badge badge-orange">PDF</span>
         </a>
-        <a href="taxmate.html" class="card card-taxmate">
-          <div class="card-icon">📋</div>
-          <span class="card-badge">Setup</span>
-          <h3>TaxMate</h3>
-          <p>Tax Services — Australia</p>
+        
+        <a href="#" class="list-item">
+          <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">📄</div>
+          <div class="list-content">
+            <h4>Food Cost Variance Report</h4>
+            <p>Ingredient usage vs theoretical</p>
+          </div>
+          <span class="badge badge-orange">PDF</span>
         </a>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat">
-          <div class="stat-label">Monthly Revenue</div>
-          <div class="stat-value">IDR 24.9M</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Transactions</div>
-          <div class="stat-value">240</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Active Projects</div>
-          <div class="stat-value">2</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Properties</div>
-          <div class="stat-value">3</div>
-        </div>
       </div>
 
       <div class="section">
-        <h2>Active Alerts</h2>
-        <a href="crafted.html" class="list-item">
-          <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">⚠️</div>
+        <h2>Ascend Estate Reports</h2>
+        <a href="#" class="list-item">
+          <div class="list-icon" style="background: rgba(91,138,94,.1); color: var(--green);">📄</div>
           <div class="list-content">
-            <h4>Food Cost Variance</h4>
-            <p>Banana consumption +60% over tolerance</p>
+            <h4>Property Performance</h4>
+            <p>All villas occupancy & revenue</p>
           </div>
-          <span class="badge badge-red">Action</span>
+          <span class="badge badge-orange">PDF</span>
         </a>
-        <a href="crafted.html" class="list-item">
-          <div class="list-icon" style="background: rgba(196,107,59,.1); color: var(--orange);">📊</div>
+        
+        <a href="#" class="list-item">
+          <div class="list-icon" style="background: rgba(91,138,94,.1); color: var(--green);">📄</div>
           <div class="list-content">
-            <h4>Mokapos Baseline</h4>
-            <p>Monthly revenue data needs import</p>
+            <h4>Petty Cash Summary</div>
+            <p>Expenses by property</p>
           </div>
-          <span class="badge badge-orange">Pending</span>
+          <span class="badge badge-orange">PDF</span>
         </a>
       </div>
     </main>
@@ -318,7 +247,7 @@
     const SUPABASE_URL = 'https://kidbbtdnhtncxtaqqgcp.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_9tYmqkG3w3UWYToiuzzoSw_KNib98xb';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    console.log('Dashboard connected to Supabase');
+    console.log('PDFs page connected to Supabase');
   </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flyer Industries - Dashboard</title>
+  <title>Crafted - Flyer Industries</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -97,79 +97,72 @@
       padding: 32px;
       min-height: 100vh;
     }
-    .header { margin-bottom: 28px; }
-    .header h1 { font-size: 26px; font-weight: 600; margin-bottom: 4px; }
-    .header p { color: var(--text-muted); font-size: 14px; }
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-    .card {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 20px;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-      text-decoration: none;
-      display: block;
-    }
-    .card:hover {
-      border-color: rgba(255,255,255,.12);
-      box-shadow: 0 4px 20px rgba(0,0,0,.3);
-    }
-    .card-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 20px;
-      background: var(--primary-dim);
-      color: var(--primary);
-    }
-    .card-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      display: flex;
+    .back-btn {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      margin-bottom: 12px;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 4px 0;
+      margin-bottom: 16px;
+      font-family: inherit;
+      text-decoration: none;
     }
-    .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
-    .card p { font-size: 12px; color: var(--text-muted); }
-    .card-crafted { border-left: 3px solid var(--orange); }
-    .card-crafted .card-icon { background: rgba(196,107,59,.1); }
-    .card-ascend { border-left: 3px solid var(--green); }
-    .card-ascend .card-icon { background: rgba(91,138,94,.1); }
-    .card-taxmate { border-left: 3px solid var(--primary); }
-    .card-taxmate .card-icon { background: var(--primary-dim); }
-    .stats-grid {
+    .back-btn:hover { color: var(--primary); }
+    .page-title { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+    .page-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+    .tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .kpi-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 12px;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
     }
-    .stat {
+    .kpi {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px 16px;
+      border-radius: 10px;
+      padding: 16px;
     }
-    .stat-label {
-      font-size: 11px;
-      color: var(--text-faint);
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .kpi-label {
+      font-size: 10px;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: .04em;
-      margin-bottom: 4px;
+      color: var(--text-faint);
     }
-    .stat-value { font-size: 20px; font-weight: 600; }
+    .kpi-value { font-size: 22px; font-weight: 700; }
+    .kpi-delta { font-size: 11px; font-weight: 600; }
+    .kpi-delta.up { color: var(--green); }
+    .kpi-delta.down { color: var(--red); }
     .section {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -178,6 +171,15 @@
       margin-bottom: 20px;
     }
     .section h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+    .badge {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .badge-green { background: rgba(91,138,94,.15); color: var(--green); }
+    .badge-orange { background: rgba(196,107,59,.15); color: var(--orange); }
+    .badge-red { background: rgba(196,91,59,.15); color: var(--red); }
     .list-item {
       display: flex;
       align-items: center;
@@ -187,11 +189,7 @@
       border: 1px solid var(--border);
       border-radius: 6px;
       margin-bottom: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
     }
-    .list-item:hover { background: var(--surface); }
     .list-icon {
       width: 36px;
       height: 36px;
@@ -202,22 +200,12 @@
       font-size: 16px;
     }
     .list-content { flex: 1; }
-    .list-content h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; color: var(--text); }
+    .list-content h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
     .list-content p { font-size: 11px; color: var(--text-faint); }
-    .badge {
-      font-size: 9px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 20px;
-    }
-    .badge-green { background: rgba(91,138,94,.15); color: var(--green); }
-    .badge-orange { background: rgba(196,107,59,.15); color: var(--orange); }
-    .badge-red { background: rgba(196,91,59,.15); color: var(--red); }
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); }
       .main { margin-left: 0; padding: 20px; }
-      .card-grid { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -229,10 +217,10 @@
       </div>
       <nav class="nav-section">
         <div class="nav-label">Businesses</div>
-        <a href="index.html" class="nav-btn active">
+        <a href="index.html" class="nav-btn">
           <i class="fas fa-home"></i> Dashboard
         </a>
-        <a href="crafted.html" class="nav-btn">
+        <a href="crafted.html" class="nav-btn active">
           <i class="fas fa-coffee"></i> Crafted
         </a>
         <a href="ascend.html" class="nav-btn">
@@ -246,69 +234,72 @@
     </aside>
 
     <main class="main">
-      <div class="header">
-        <h1>Welcome, Tony!</h1>
-        <p>Flyer Industries Command Center</p>
+      <a href="index.html" class="back-btn">← Back</a>
+      <h1 class="page-title">Crafted Coffee Shop</h1>
+      <p class="page-sub">Berawa, Bali — Coffee Shop Operations</p>
+
+      <div class="tabs">
+        <a href="crafted.html" class="tab active">Dashboard</a>
+        <a href="crafted-tasks.html" class="tab">Tasks</a>
+        <a href="crafted-docs.html" class="tab">Documents</a>
       </div>
 
-      <div class="card-grid">
-        <a href="crafted.html" class="card card-crafted">
-          <div class="card-icon">☕</div>
-          <span class="card-badge">Active</span>
-          <h3>Crafted</h3>
-          <p>Coffee Shop — Berawa, Bali</p>
-        </a>
-        <a href="ascend.html" class="card card-ascend">
-          <div class="card-icon">🏡</div>
-          <span class="card-badge">Active</span>
-          <h3>Ascend Estate</h3>
-          <p>Villa Management — Bali</p>
-        </a>
-        <a href="taxmate.html" class="card card-taxmate">
-          <div class="card-icon">📋</div>
-          <span class="card-badge">Setup</span>
-          <h3>TaxMate</h3>
-          <p>Tax Services — Australia</p>
-        </a>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-header">
+            <span class="kpi-label">Monthly Revenue</span>
+          </div>
+          <div class="kpi-value" style="color: var(--orange);">IDR 24.9M</div>
+          <div class="kpi-delta up">↑ 12.5%</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-header">
+            <span class="kpi-label">Gross Margin</span>
+          </div>
+          <div class="kpi-value">47.8%</div>
+          <div class="kpi-delta up">↑ 2.1%</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-header">
+            <span class="kpi-label">Food Cost</span>
+          </div>
+          <div class="kpi-value" style="color: var(--red);">32.4%</div>
+          <div class="kpi-delta down">↑ 5.2%</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-header">
+            <span class="kpi-label">Transactions</span>
+          </div>
+          <div class="kpi-value">240</div>
+          <div class="kpi-delta up">↑ 8.3%</div>
+        </div>
       </div>
 
-      <div class="stats-grid">
-        <div class="stat">
-          <div class="stat-label">Monthly Revenue</div>
-          <div class="stat-value">IDR 24.9M</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Transactions</div>
-          <div class="stat-value">240</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Active Projects</div>
-          <div class="stat-value">2</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Properties</div>
-          <div class="stat-value">3</div>
+      <div class="section">
+        <h2>February Performance</h2>
+        <div style="display: flex; gap: 24px; padding: 16px; background: var(--surface-2); border-radius: 6px;">
+          <div style="text-align: center;">
+            <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase;">Revenue</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--orange);">84.7%</div>
+          </div>
+          <div style="width: 1px; background: var(--border);"></div>
+          <div style="text-align: center;">
+            <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase;">Food Cost</div>
+            <div style="font-size: 24px; font-weight: 700;">28.3%</div>
+          </div>
         </div>
       </div>
 
       <div class="section">
         <h2>Active Alerts</h2>
-        <a href="crafted.html" class="list-item">
+        <div class="list-item">
           <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">⚠️</div>
           <div class="list-content">
-            <h4>Food Cost Variance</h4>
-            <p>Banana consumption +60% over tolerance</p>
+            <h4>Food Cost Variance - Banana</h4>
+            <p>60% over tolerance threshold</p>
           </div>
           <span class="badge badge-red">Action</span>
-        </a>
-        <a href="crafted.html" class="list-item">
-          <div class="list-icon" style="background: rgba(196,107,59,.1); color: var(--orange);">📊</div>
-          <div class="list-content">
-            <h4>Mokapos Baseline</h4>
-            <p>Monthly revenue data needs import</p>
-          </div>
-          <span class="badge badge-orange">Pending</span>
-        </a>
+        </div>
       </div>
     </main>
   </div>
@@ -318,7 +309,7 @@
     const SUPABASE_URL = 'https://kidbbtdnhtncxtaqqgcp.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_9tYmqkG3w3UWYToiuzzoSw_KNib98xb';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    console.log('Dashboard connected to Supabase');
+    console.log('Crafted page connected to Supabase');
   </script>
 </body>
 </html>
