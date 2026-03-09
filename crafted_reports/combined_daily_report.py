@@ -194,17 +194,27 @@ def generate_crafted_summary(expenses, petty_cash, mokapos_data):
     daily_rev = {'gross_sales': 0, 'net_sales': 0, 'transactions': 0}
     monthly_cumulative_rev = {'gross_sales': 0, 'net_sales': 0, 'transactions': 0}
     
+    # BASELINE DATA (Feb 21 - Mar 7, 2026 from Tony's screenshot)
+    # Net Sales: IDR 24,956,240 | Transactions: 240 | Gross Sales: IDR 27,578,640
+    BASELINE_NET_SALES = 24956240
+    BASELINE_GROSS_SALES = 27578640
+    BASELINE_TRANSACTIONS = 240
+    
     if isinstance(mokapos_data, dict) and mokapos_data.get('success'):
         daily = mokapos_data.get('daily_revenue', {})
         daily_rev['gross_sales'] = daily.get('gross_sales', 0)
         daily_rev['net_sales'] = daily.get('net_sales', 0)
         daily_rev['transactions'] = daily.get('transactions', 0)
         
-        # Monthly cumulative from Mokapos
-        monthly = mokapos_data.get('monthly_cumulative_revenue', {})
-        monthly_cumulative_rev['gross_sales'] = monthly.get('gross_sales', daily_rev['gross_sales'])
-        monthly_cumulative_rev['net_sales'] = monthly.get('net_sales', daily_rev['net_sales'])
-        monthly_cumulative_rev['transactions'] = monthly.get('transactions', daily_rev['transactions'])
+        # Monthly cumulative = Baseline + Today's data
+        monthly_cumulative_rev['gross_sales'] = BASELINE_GROSS_SALES + daily_rev['gross_sales']
+        monthly_cumulative_rev['net_sales'] = BASELINE_NET_SALES + daily_rev['net_sales']
+        monthly_cumulative_rev['transactions'] = BASELINE_TRANSACTIONS + daily_rev['transactions']
+    else:
+        # Fallback to baseline only if Mokapos fails
+        monthly_cumulative_rev['gross_sales'] = BASELINE_GROSS_SALES
+        monthly_cumulative_rev['net_sales'] = BASELINE_NET_SALES
+        monthly_cumulative_rev['transactions'] = BASELINE_TRANSACTIONS
     
     # Calculate monthly cumulative expenses
     period_start, _ = get_monthly_period_dates()

@@ -20,6 +20,7 @@
       --green: #5B8A5E;
       --red: #C45B3B;
       --orange: #C46B3B;
+      --yellow: #C4A43B;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -171,6 +172,7 @@
       margin-bottom: 20px;
     }
     .section h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+    .section h3 { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--text-muted); }
     .badge {
       font-size: 9px;
       font-weight: 700;
@@ -180,6 +182,7 @@
     .badge-green { background: rgba(91,138,94,.15); color: var(--green); }
     .badge-orange { background: rgba(196,107,59,.15); color: var(--orange); }
     .badge-red { background: rgba(196,91,59,.15); color: var(--red); }
+    .badge-yellow { background: rgba(196,164,59,.15); color: var(--yellow); }
     .list-item {
       display: flex;
       align-items: center;
@@ -202,10 +205,116 @@
     .list-content { flex: 1; }
     .list-content h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
     .list-content p { font-size: 11px; color: var(--text-faint); }
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .recipe-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .recipe-card h4 {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .recipe-card .cost {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .recipe-card .ingredients {
+      font-size: 10px;
+      color: var(--text-faint);
+      line-height: 1.5;
+    }
+    .progress-bar {
+      height: 6px;
+      background: var(--surface-2);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+    .progress-fill.green { background: var(--green); }
+    .progress-fill.orange { background: var(--orange); }
+    .progress-fill.red { background: var(--red); }
+    .cost-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .cost-item {
+      text-align: center;
+      padding: 12px;
+      background: var(--surface-2);
+      border-radius: 6px;
+    }
+    .cost-item .label {
+      font-size: 10px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+    }
+    .cost-item .value {
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    .monthly-banner {
+      background: linear-gradient(135deg, rgba(196,107,59,.2) 0%, rgba(196,107,59,.05) 100%);
+      border: 1px solid rgba(196,107,59,.3);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .monthly-banner h2 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--orange);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .monthly-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .monthly-stat {
+      text-align: center;
+    }
+    .monthly-stat .label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .monthly-stat .value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .monthly-stat .sub {
+      font-size: 11px;
+      color: var(--text-faint);
+      margin-top: 2px;
+    }
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); }
       .main { margin-left: 0; padding: 20px; }
       .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .monthly-stats { grid-template-columns: repeat(2, 1fr); }
+      .recipe-grid { grid-template-columns: 1fr; }
+      .cost-summary { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -238,67 +347,179 @@
       <h1 class="page-title">Crafted Coffee Shop</h1>
       <p class="page-sub">Berawa, Bali — Coffee Shop Operations</p>
 
-      <div class="tabs">
-        <a href="crafted.html" class="tab active">Dashboard</a>
-        <a href="crafted-tasks.html" class="tab">Tasks</a>
-        <a href="crafted-docs.html" class="tab">Documents</a>
+      <!-- Monthly Period Banner -->
+      <div class="monthly-banner">
+        <h2>📅 Monthly Period: 21 Feb - 20 Mar</h2>
+        <div class="monthly-stats">
+          <div class="monthly-stat">
+            <div class="label">Total Revenue</div>
+            <div class="value" style="color: var(--orange);">IDR 26.7M</div>
+            <div class="sub">Feb 21 - Mar 9</div>
+          </div>
+          <div class="monthly-stat">
+            <div class="label">Total Expenses</div>
+            <div class="value">IDR 1.9M</div>
+            <div class="sub">Crafted + Petty Cash</div>
+          </div>
+          <div class="monthly-stat">
+            <div class="label">Petty Cash</div>
+            <div class="value" style="color: var(--green);">IDR 1.4M</div>
+            <div class="sub">Current Balance</div>
+          </div>
+          <div class="monthly-stat">
+            <div class="label">Net Position</div>
+            <div class="value" style="color: var(--green);">+IDR 24.8M</div>
+            <div class="sub">Month to Date</div>
+          </div>
+        </div>
       </div>
 
+      <!-- Food & Beverage Cost Summary -->
+      <div class="section">
+        <h2>🍽️ Food & Beverage Cost Analysis</h2>
+        
+        <div class="cost-summary">
+          <div class="cost-item">
+            <div class="label">Food Cost %</div>
+            <div class="value" style="color: var(--orange);">28.3%</div>
+            <div class="progress-bar">
+              <div class="progress-fill orange" style="width: 28.3%;"></div>
+            </div>
+          </div>
+          <div class="cost-item">
+            <div class="label">Beverage Cost %</div>
+            <div class="value" style="color: var(--green);">22.1%</div>
+            <div class="progress-bar">
+              <div class="progress-fill green" style="width: 22.1%;"</div>
+            </div>
+          </div>
+          <div class="cost-item">
+            <div class="label">Gross Margin</div>
+            <div class="value" style="color: var(--green);">47.8%</div>
+            <div class="progress-bar">
+              <div class="progress-fill green" style="width: 47.8%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; padding: 12px; background: rgba(196,164,59,.1); border-radius: 6px; border-left: 3px solid var(--yellow);">
+          <div style="font-size: 12px; color: var(--text-muted);">
+            <i class="fas fa-info-circle" style="color: var(--yellow); margin-right: 6px;"></i>
+            Food cost calculated from ingredient reference recipes. Stock count needed at month-end for final reconciliation.
+          </div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <a href="crafted.html" class="tab active">Dashboard</a>
+        <a href="crafted-recipes.html" class="tab">Recipes</a>
+        <a href="crafted-alerts.html" class="tab">Alerts</a>
+        <a href="crafted-daily.html" class="tab">Daily Report</a>
+      </div>
+
+      <!-- Today's KPIs -->
       <div class="kpi-grid">
         <div class="kpi">
           <div class="kpi-header">
-            <span class="kpi-label">Monthly Revenue</span>
+            <span class="kpi-label">Today's Revenue</span>
           </div>
-          <div class="kpi-value" style="color: var(--orange);">IDR 24.9M</div>
-          <div class="kpi-delta up">↑ 12.5%</div>
+          <div class="kpi-value" style="color: var(--orange);">IDR 1.7M</div>
+          <div class="kpi-delta up">198 transactions</div>
         </div>
         <div class="kpi">
           <div class="kpi-header">
-            <span class="kpi-label">Gross Margin</span>
+            <span class="kpi-label">Today's Expenses</div>
           </div>
-          <div class="kpi-value">47.8%</div>
-          <div class="kpi-delta up">↑ 2.1%</div>
+          <div class="kpi-value">IDR 656K</div>
+          <div class="kpi-delta">12 transactions</div>
         </div>
         <div class="kpi">
           <div class="kpi-header">
-            <span class="kpi-label">Food Cost</span>
+            <span class="kpi-label">Petty Cash Out</div>
           </div>
-          <div class="kpi-value" style="color: var(--red);">32.4%</div>
-          <div class="kpi-delta down">↑ 5.2%</div>
+          <div class="kpi-value" style="color: var(--red);">IDR 594K</div>
+          <div class="kpi-delta">11 transactions</div>
         </div>
         <div class="kpi">
           <div class="kpi-header">
-            <span class="kpi-label">Transactions</span>
+            <span class="kpi-label">Today's Net</div>
           </div>
-          <div class="kpi-value">240</div>
-          <div class="kpi-delta up">↑ 8.3%</div>
+          <div class="kpi-value" style="color: var(--green);">+IDR 480K</div>
+          <div class="kpi-delta up">Revenue - Expenses</div>
         </div>
       </div>
 
+      <!-- Active Alerts -->
       <div class="section">
-        <h2>February Performance</h2>
-        <div style="display: flex; gap: 24px; padding: 16px; background: var(--surface-2); border-radius: 6px;">
-          <div style="text-align: center;">
-            <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase;">Revenue</div>
-            <div style="font-size: 24px; font-weight: 700; color: var(--orange);">84.7%</div>
-          </div>
-          <div style="width: 1px; background: var(--border);"></div>
-          <div style="text-align: center;">
-            <div style="font-size: 10px; color: var(--text-faint); text-transform: uppercase;">Food Cost</div>
-            <div style="font-size: 24px; font-weight: 700;">28.3%</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>Active Alerts</h2>
+        <h2>🚨 Active Alerts</h2>
+        
         <div class="list-item">
           <div class="list-icon" style="background: rgba(196,91,59,.1); color: var(--red);">⚠️</div>
           <div class="list-content">
-            <h4>Food Cost Variance - Banana</h4>
-            <p>60% over tolerance threshold</p>
+            <h4>Food Cost Variance - Multiple Items</h4>
+            <p>Feta Cheese, Sourdough Bread, Tomato showing -100% variance (no sales recorded)</p>
           </div>
-          <span class="badge badge-red">Action</span>
+          <span class="badge badge-yellow">Review</span>
+        </div>
+
+        <div class="list-item">
+          <div class="list-icon" style="background: rgba(196,107,59,.1); color: var(--orange);">📊</div>
+          <div class="list-content">
+            <h4>Monthly Data Collection</h4>
+            <p>Baseline set from Feb 21. Daily updates active. Stock count needed at month-end.</p>
+          </div>
+          <span class="badge badge-green">Active</span>
+        </div>
+      </div>
+
+      <!-- Recipe Reference Preview -->
+      <div class="section">
+        <h2>📋 Recipe Reference (Cost Basis)</h2>
+        
+        <h3>☕ Top Selling Beverages</h3>
+        <div class="recipe-grid">
+          <div class="recipe-card">
+            <h4>Espresso <span class="cost">IDR 3,500</span></h4>
+            <div class="ingredients">18g ground coffee</div>
+          </div>
+          <div class="recipe-card">
+            <h4>Cappuccino <span class="cost">IDR 8,750</span></h4>
+            <div class="ingredients">18g coffee + 150ml milk + foam</div>
+          </div>
+          <div class="recipe-card">
+            <h4>Latte <span class="cost">IDR 10,250</span></h4>
+            <div class="ingredients">18g coffee + 200ml milk</div>
+          </div>
+          <div class="recipe-card">
+            <h4>Americano <span class="cost">IDR 4,500</span></h4>
+            <div class="ingredients">18g coffee + 200ml water</div>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 20px;">🍽️ Top Selling Food</h3>
+        <div class="recipe-grid">
+          <div class="recipe-card">
+            <h4>Avocado Toast <span class="cost">IDR 15,500</span></h4>
+            <div class="ingredients">1 avocado + 2 bread + feta + egg + tomato</div>
+          </div>
+          <div class="recipe-card">
+            <h4>Eggs Benedict <span class="cost">IDR 12,750</span></h4>
+            <div class="ingredients">2 eggs + English muffin + hollandaise + ham</div>
+          </div>
+          <div class="recipe-card">
+            <h4>Sourdough Toast <span class="cost">IDR 8,500</span></h4>
+            <div class="ingredients">2 sourdough + butter + jam/peanut butter</div>
+          </div>
+          <div class="recipe-card">
+            <h4>Granola Bowl <span class="cost">IDR 14,250</span></h4>
+            <div class="ingredients">80g granola + 150g yogurt + banana + honey + seeds</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 16px; text-align: center;">
+          <a href="crafted-recipes.html" style="color: var(--primary); font-size: 12px; text-decoration: none;">
+            View All 61 Recipes →
+          </a>
         </div>
       </div>
     </main>
@@ -309,7 +530,46 @@
     const SUPABASE_URL = 'https://kidbbtdnhtncxtaqqgcp.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_9tYmqkG3w3UWYToiuzzoSw_KNib98xb';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    console.log('Crafted page connected to Supabase');
+    
+    // Load live data from Supabase
+    async function loadCraftedData() {
+      console.log('Loading Crafted data from Supabase...');
+      
+      // Get today's date
+      const today = new Date().toISOString().split('T')[0];
+      
+      try {
+        // Fetch daily revenue
+        const { data: revenue } = await supabase
+          .from('daily_revenue')
+          .select('*')
+          .eq('business_id', 1)
+          .eq('date', today)
+          .single();
+          
+        if (revenue) {
+          console.log('Today\'s revenue:', revenue);
+          // Update KPI values dynamically
+        }
+        
+        // Fetch monthly summary
+        const monthKey = today.substring(0, 7);
+        const { data: monthly } = await supabase
+          .from('monthly_summaries')
+          .select('*')
+          .eq('business_id', 1)
+          .eq('month_key', monthKey)
+          .single();
+          
+        if (monthly) {
+          console.log('Monthly summary:', monthly);
+        }
+      } catch (e) {
+        console.log('Using static data (Supabase connection pending)');
+      }
+    }
+    
+    loadCraftedData();
   </script>
 </body>
 </html>

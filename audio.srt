@@ -1,0 +1,156 @@
+1
+00:00:00,000 --> 00:00:05,000
+Okay, so let's talk first about crafted, okay?
+
+2
+00:00:05,000 --> 00:00:11,000
+So I want you to prepare a better version of the dashboard
+
+3
+00:00:11,000 --> 00:00:17,000
+because I need to do a daily check of what's going on in crafted, when I'm not there.
+
+4
+00:00:17,000 --> 00:00:24,000
+You got the Ingridian quantity information from the Varista side and from the kitchen side.
+
+5
+00:00:24,000 --> 00:00:26,000
+I want that you analyze them again.
+
+6
+00:00:26,000 --> 00:00:29,000
+You take them as a reference.
+
+7
+00:00:29,000 --> 00:00:38,000
+You add them in the dashboard, in crafted, as a reference for what we need to see on a daily basis.
+
+8
+00:00:38,000 --> 00:00:39,000
+Okay?
+
+9
+00:00:39,000 --> 00:00:49,000
+So add this in the dashboard of crafted as a reference of a food cost and beverage cost.
+
+10
+00:00:50,000 --> 00:00:56,000
+Secondly, you need to make a daily report about the revenue,
+
+11
+00:00:56,000 --> 00:01:02,000
+the expenses that you can see from the access of the Google Drive
+
+12
+00:01:02,000 --> 00:01:06,000
+and the pretty cash report of a daily basis.
+
+13
+00:01:06,000 --> 00:01:12,000
+At the same time, in MonkaPoss, you cannot check from the 21st of February until today
+
+14
+00:01:12,000 --> 00:01:15,000
+but I send you already the picture of the total revenue
+
+15
+00:01:15,000 --> 00:01:22,000
+and you now, based on that, based on the information that you can get on a daily basis from Monka
+
+16
+00:01:22,000 --> 00:01:29,000
+to when you do the chrono check daily, you can add that revenue from those pictures, right?
+
+17
+00:01:29,000 --> 00:01:31,000
+And so we know.
+
+18
+00:01:31,000 --> 00:01:36,000
+And what I want to see now after you update all of this,
+
+19
+00:01:36,000 --> 00:01:40,000
+you do like an extra chrono check right now for me
+
+20
+00:01:40,000 --> 00:01:43,000
+and I want to see the updates in the dashboard.
+
+21
+00:01:43,000 --> 00:01:46,000
+I want to see when I go in crafted, I want to see
+
+22
+00:01:46,000 --> 00:01:54,000
+total revenue of the month from 21st of February until 7th of March, right?
+
+23
+00:01:54,000 --> 00:01:59,000
+Total expenses from the 21st of February until 7th of March.
+
+24
+00:01:59,000 --> 00:02:03,000
+Pretty cash balance.
+
+25
+00:02:03,000 --> 00:02:11,000
+And daily, report tomorrow about what crafted earned today
+
+26
+00:02:11,000 --> 00:02:16,000
+and what crafted have expensive today.
+
+27
+00:02:16,000 --> 00:02:20,000
+So every day, the total revenue and the total expenses
+
+28
+00:02:20,000 --> 00:02:25,000
+is going to be updated into your dashboard, right?
+
+29
+00:02:25,000 --> 00:02:30,000
+So I need to see and it has to be updated at the date of 7th of March,
+
+30
+00:02:30,000 --> 00:02:34,000
+updated at the date of 8th March, 9th March, etc.
+
+31
+00:02:34,000 --> 00:02:38,000
+Based on that, you will see the food cost,
+
+32
+00:02:38,000 --> 00:02:43,000
+and you can give like a little not to sell that.
+
+33
+00:02:43,000 --> 00:02:48,000
+What is the food cost from the beginning of the month until now?
+
+34
+00:02:48,000 --> 00:02:55,000
+And then on the last day of the month, I will give you the stock of the food cost
+
+35
+00:02:55,000 --> 00:02:57,000
+and the stock of the beverage cost.
+
+36
+00:02:57,000 --> 00:03:00,000
+So with that, we're going to have a full picture, why?
+
+37
+00:03:00,000 --> 00:03:06,000
+Because the food cost expenses of the month will be taught.
+
+38
+00:03:06,000 --> 00:03:16,000
+The stock will be taught based on the ingredient quantity reference.
+
+39
+00:03:16,000 --> 00:03:22,000
+We can cross-check and we can see if everything is in line.
+
