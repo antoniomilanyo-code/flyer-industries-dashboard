@@ -349,21 +349,17 @@ def format_combined_report(crafted_summary, ascend_summary, food_cost_alerts=Non
     report.append("═══════════════════════════════════════")
     report.append("")
     
-    report.append("💰 *Villa Petty Cash*")
-    report.append(f"   Total Expenditure: IDR {ascend_summary['total_expenditure']:,.0f}")
-    report.append(f"   Transactions: {ascend_summary['transaction_count']}")
-    if ascend_summary['opening_balance'] > 0:
-        report.append(f"   Opening Balance: IDR {ascend_summary['opening_balance']:,.0f}")
-    if ascend_summary['current_balance'] > 0:
-        report.append(f"   Current Balance: IDR {ascend_summary['current_balance']:,.0f}")
+    report.append("⏸️ *Petty Cash Updates PAUSED*")
+    report.append("   Waiting for end-of-month revenue report")
+    report.append("   February data collection in progress")
+    report.append("   Profit margin calculation pending")
     report.append("")
-    
-    if ascend_summary['by_villa']:
-        report.append("🏠 *By Villa*")
-        for villa, data in sorted(ascend_summary['by_villa'].items(), key=lambda x: x[1]['total'], reverse=True):
-            if villa and villa != '-':
-                report.append(f"   • {villa}: IDR {data['total']:,.0f} ({data['count']} items)")
-        report.append("")
+    report.append("   Last recorded:")
+    report.append(f"   • Villa Panamera balance: IDR 2,011,051")
+    report.append(f"   • Villa Paradiso: Active")
+    report.append("")
+    report.append("   📊 Full analysis coming after Feb data received")
+    report.append("")
     
     # ==================== WASTE MANAGEMENT ====================
     report.append("═══════════════════════════════════════")
