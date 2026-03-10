@@ -214,11 +214,11 @@ def generate_crafted_summary(expenses, petty_cash, mokapos_data):
     daily_rev = {'gross_sales': 0, 'net_sales': 0, 'transactions': 0}
     monthly_cumulative_rev = {'gross_sales': 0, 'net_sales': 0, 'transactions': 0}
     
-    # BASELINE DATA (Feb 21 - Mar 7, 2026 from Tony's screenshot)
-    # Net Sales: IDR 24,956,240 | Transactions: 240 | Gross Sales: IDR 27,578,640
-    BASELINE_NET_SALES = 24956240
-    BASELINE_GROSS_SALES = 27578640
-    BASELINE_TRANSACTIONS = 240
+    # BASELINE DATA - Note: Mokapos already returns cumulative since period start
+    # So we DON'T add baseline - we use what Mokapos returns directly
+    BASELINE_NET_SALES = 0  # Disabled - using Mokapos cumulative directly
+    BASELINE_GROSS_SALES = 0  # Disabled - using Mokapos cumulative directly
+    BASELINE_TRANSACTIONS = 0  # Disabled - using Mokapos cumulative directly
     
     if isinstance(mokapos_data, dict) and mokapos_data.get('success'):
         daily = mokapos_data.get('daily_revenue', {})
@@ -226,10 +226,10 @@ def generate_crafted_summary(expenses, petty_cash, mokapos_data):
         daily_rev['net_sales'] = daily.get('net_sales', 0)
         daily_rev['transactions'] = daily.get('transactions', 0)
         
-        # Monthly cumulative = Baseline + Today's data
-        monthly_cumulative_rev['gross_sales'] = BASELINE_GROSS_SALES + daily_rev['gross_sales']
-        monthly_cumulative_rev['net_sales'] = BASELINE_NET_SALES + daily_rev['net_sales']
-        monthly_cumulative_rev['transactions'] = BASELINE_TRANSACTIONS + daily_rev['transactions']
+        # Monthly cumulative = What Mokapos returns (already cumulative)
+        monthly_cumulative_rev['gross_sales'] = daily_rev['gross_sales']
+        monthly_cumulative_rev['net_sales'] = daily_rev['net_sales']
+        monthly_cumulative_rev['transactions'] = daily_rev['transactions']
     else:
         # Fallback to baseline only if Mokapos fails
         monthly_cumulative_rev['gross_sales'] = BASELINE_GROSS_SALES
@@ -296,9 +296,9 @@ def format_combined_report(crafted_summary, ascend_summary, food_cost_alerts=Non
     
     # Daily Revenue
     rev = crafted_summary['revenue']
-    report.append("💵 *TODAY'S REVENUE*")
+    report.append("💵 *PERIOD REVENUE (Feb 21 - Today)*")
     report.append(f"   Gross: IDR {rev['gross_sales']:,.0f} | Net: IDR {rev['net_sales']:,.0f}")
-    report.append(f"   Transactions: {rev['transactions']}")
+    report.append(f"   Transactions: {rev['transactions']} (cumulative)")
     report.append("")
     
     # Monthly Cumulative Revenue
@@ -311,7 +311,7 @@ def format_combined_report(crafted_summary, ascend_summary, food_cost_alerts=Non
     # Daily Expenses
     exp = crafted_summary['expenses']
     pc = crafted_summary['petty_cash']
-    report.append("💳 *TODAY'S EXPENSES*")
+    report.append("💳 *PERIOD EXPENSES (Feb 21 - Today)*")
     report.append(f"   Expenses: IDR {exp['total']:,.0f} ({exp['transactions']} txns)")
     report.append(f"   Petty Cash Out: IDR {pc['total_out']:,.0f}")
     report.append(f"   Current Balance: IDR {pc['current_balance']:,.0f}")
@@ -405,9 +405,9 @@ def format_combined_report(crafted_summary, ascend_summary, food_cost_alerts=Non
                      ascend_summary['total_expenditure'])
     total_revenue = crafted_summary['revenue']['net_sales']
     
-    report.append(f"   Today's Revenue: IDR {total_revenue:,.0f}")
-    report.append(f"   Today's Outflows: IDR {total_outflows:,.0f}")
-    report.append(f"   Today's Net: {'+' if (total_revenue - total_outflows) >= 0 else ''}IDR {(total_revenue - total_outflows):,.0f}")
+    report.append(f"   Period Revenue: IDR {total_revenue:,.0f}")
+    report.append(f"   Period Outflows: IDR {total_outflows:,.0f}")
+    report.append(f"   Period Net: {'+' if (total_revenue - total_outflows) >= 0 else ''}IDR {(total_revenue - total_outflows):,.0f}")
     report.append("")
     report.append("✅ Daily report complete")
     
