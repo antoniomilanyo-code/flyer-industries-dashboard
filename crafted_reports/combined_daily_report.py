@@ -17,6 +17,7 @@ sys.path.insert(0, '/root/.openclaw/workspace/crafted_reports')
 from datetime import datetime
 from collections import defaultdict
 from food_cost_tracker import FoodCostTracker
+from waste_tracker import get_waste_summary
 
 # Google Sheet URLs
 CRAFTED_EXPENSES_URL = "https://docs.google.com/spreadsheets/d/1u7Du_KjwGvEL-Jp0oI91Zjlq8gYtxOx5/export?format=csv"
@@ -363,6 +364,39 @@ def format_combined_report(crafted_summary, ascend_summary, food_cost_alerts=Non
             if villa and villa != '-':
                 report.append(f"   • {villa}: IDR {data['total']:,.0f} ({data['count']} items)")
         report.append("")
+    
+    # ==================== WASTE MANAGEMENT ====================
+    report.append("═══════════════════════════════════════")
+    report.append("♻️ *WASTE MANAGEMENT*")
+    report.append("═══════════════════════════════════════")
+    report.append("")
+    
+    # Get waste data
+    monthly_net = crafted_summary['monthly_cumulative_revenue']['net_sales']
+    waste_data = get_waste_summary(monthly_net)
+    
+    if waste_data:
+        report.append(f"Total Waste Value: IDR {waste_data['total_waste_value']:,.0f}")
+        report.append(f"Items Wasted: {waste_data['total_items']}")
+        report.append(f"Waste % of Revenue: {waste_data['waste_percentage']:.1f}%")
+        report.append("")
+        
+        if waste_data['waste_percentage'] > 2.0:
+            report.append("⚠️ Waste above 2% target - review ordering quantities")
+        else:
+            report.append("✅ Waste within target (< 2%)")
+        
+        # Top waste items
+        if waste_data['top_waste_items']:
+            report.append("")
+            report.append("Top Waste Items:")
+            for item in waste_data['top_waste_items'][:3]:
+                if item['item']:
+                    report.append(f"   • {item['item']}: IDR {item['cost']:,.0f} ({item['note']})")
+    else:
+        report.append("❌ Waste data unavailable")
+    
+    report.append("")
     
     # ==================== SUMMARY ====================
     report.append("═══════════════════════════════════════")

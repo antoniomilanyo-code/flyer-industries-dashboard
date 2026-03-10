@@ -45,14 +45,26 @@
     }
     .logo {
       font-family: 'Inter', sans-serif;
-      font-size: 20px;
-      font-weight: 800;
+      font-size: 18px;
+      font-weight: 900;
       font-style: italic;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
       text-transform: uppercase;
-      background: linear-gradient(180deg, #fff 0%, #c0c0c0 50%, #808080 100%);
+      background: linear-gradient(180deg, #ffffff 0%, #c0c0c0 40%, #808080 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .logo::after {
+      content: '';
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      transform: translateY(-50%) skewX(-20deg);
+      width: 3px;
+      height: 70%;
+      background: linear-gradient(180deg, #fff 0%, #c0c0c0 50%, #808080 100%);
     }
     .nav-section {
       padding: 20px 12px;
@@ -225,7 +237,7 @@
   <div class="app">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="logo">FLYER /</div>
+        <div class="logo">FLYER INDUSTRIES</div>
       </div>
       <nav class="nav-section">
         <div class="nav-label">Businesses</div>
