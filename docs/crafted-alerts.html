@@ -240,32 +240,41 @@
         <a href="crafted-daily.html" class="tab">Daily Report</a>
       </div>
 
+      <!-- Info Box -->
+      <div style="margin-bottom: 20px; padding: 16px; background: rgba(196,164,59,.1); border-radius: 8px; border-left: 3px solid var(--yellow);">
+        <p style="font-size: 12px; color: var(--text-muted); margin: 0;">
+          <i class="fas fa-info-circle" style="color: var(--yellow); margin-right: 8px;"></i>
+          <strong>Note:</strong> Some items show -100% variance because purchases were not recorded in Google Sheets (not because they're out of stock). 
+          Physical stock counts are needed to verify actual inventory. Alerts marked "VERIFY" need purchase data updated, not restocking.
+        </p>
+      </div>
+
       <!-- Critical Alerts -->
       <div class="section">
         <h2>🔴 Critical Alerts</h2>
         
-        <div class="alert-item critical">
-          <div class="alert-icon critical">⚠️</div>
+        <div class="alert-item warning">
+          <div class="alert-icon warning">📋</div>
           <div class="alert-content">
-            <h4>Ingredient Stock Out - Sourdough Bread</h4>
-            <p>Theoretical usage: 80 slices | Actual purchases: 0 slices | Variance: -100%</p>
+            <h4>Purchase Data Missing - Sourdough Bread</h4>
+            <p>Expected: 80 slices | Purchases recorded: 0 | Physical stock: VERIFY</p>
             <div class="alert-meta">
               <span>📍 Kitchen</span>
               <span>🕐 Detected: Mar 10</span>
-              <span class="badge badge-red">ACTION REQUIRED</span>
+              <span class="badge badge-orange">UPDATE SHEET</span>
             </div>
           </div>
         </div>
 
-        <div class="alert-item critical">
-          <div class="alert-icon critical">⚠️</div>
+        <div class="alert-item warning">
+          <div class="alert-icon warning">📋</div>
           <div class="alert-content">
-            <h4>Ingredient Stock Out - Feta Cheese</h4>
-            <p>Theoretical usage: 2.5 kg | Actual purchases: 0 kg | Variance: -100%</p>
+            <h4>Purchase Data Missing - Feta Cheese</h4>
+            <p>Expected: 2.5 kg | Purchases recorded: 0 | Physical stock: ~120g CONFIRMED</p>
             <div class="alert-meta">
               <span>📍 Kitchen</span>
               <span>🕐 Detected: Mar 10</span>
-              <span class="badge badge-red">ACTION REQUIRED</span>
+              <span class="badge badge-orange">UPDATE SHEET</span>
             </div>
           </div>
         </div>
