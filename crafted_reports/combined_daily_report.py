@@ -188,7 +188,7 @@ def calculate_monthly_cumulative_expenses(expenses, petty_cash, period_start):
     return {
         'expenses': monthly_expenses,
         'petty_cash': monthly_petty,
-        'total_outflows': monthly_expenses['total'] + monthly_petty['total_out']
+        'total_outflows': monthly_expenses['total'],  # Don't add petty cash - it's used to pay expenses
     }
 
 def generate_crafted_summary(expenses, petty_cash, mokapos_data):
@@ -400,9 +400,7 @@ def format_combined_report(crafted_summary, ascend_summary, food_cost_alerts=Non
     report.append("═══════════════════════════════════════")
     report.append("")
     
-    total_outflows = (crafted_summary['expenses']['total'] + 
-                     crafted_summary['petty_cash']['total_out'] + 
-                     ascend_summary['total_expenditure'])
+    total_outflows = crafted_summary['expenses']['total']  # Petty cash pays expenses, don't double count
     total_revenue = crafted_summary['revenue']['net_sales']
     
     report.append(f"   Period Revenue: IDR {total_revenue:,.0f}")
