@@ -40,18 +40,11 @@
   },
   "variances": {
     "2026-03": {
-      "dates": {
+      "feta_cheese": {
         "theoretical": 15.0,
         "actual": 0,
         "variance_qty": -15.0,
         "variance_percent": -100.0,
-        "flagged": true
-      },
-      "milk": {
-        "theoretical": 1000.0,
-        "actual": 2000.0,
-        "variance_qty": 1000.0,
-        "variance_percent": 100.0,
         "flagged": true
       },
       "ground_coffee": {
@@ -61,66 +54,17 @@
         "variance_percent": 11.1,
         "flagged": false
       },
-      "banana": {
-        "theoretical": 500.0,
-        "actual": 800.0,
-        "variance_qty": 300.0,
-        "variance_percent": 60.0,
-        "flagged": true
-      },
-      "avocado": {
-        "theoretical": 500.0,
-        "actual": 500.0,
-        "variance_qty": 0.0,
-        "variance_percent": 0.0,
-        "flagged": false
-      },
-      "feta_cheese": {
-        "theoretical": 15.0,
+      "sourdough": {
+        "theoretical": 200.0,
         "actual": 0,
-        "variance_qty": -15.0,
+        "variance_qty": -200.0,
         "variance_percent": -100.0,
         "flagged": true
       },
-      "romaine": {
-        "theoretical": 100.0,
+      "fresh_milk": {
+        "theoretical": 2000.0,
         "actual": 0,
-        "variance_qty": -100.0,
-        "variance_percent": -100.0,
-        "flagged": true
-      },
-      "mozzarella": {
-        "theoretical": 80.0,
-        "actual": 0,
-        "variance_qty": -80.0,
-        "variance_percent": -100.0,
-        "flagged": true
-      },
-      "tomato": {
-        "theoretical": 140.0,
-        "actual": 0,
-        "variance_qty": -140.0,
-        "variance_percent": -100.0,
-        "flagged": true
-      },
-      "edamame": {
-        "theoretical": 30.0,
-        "actual": 0,
-        "variance_qty": -30.0,
-        "variance_percent": -100.0,
-        "flagged": true
-      },
-      "oreo": {
-        "theoretical": 10.0,
-        "actual": 0,
-        "variance_qty": -10.0,
-        "variance_percent": -100.0,
-        "flagged": true
-      },
-      "chicken_breast": {
-        "theoretical": 140.0,
-        "actual": 0,
-        "variance_qty": -140.0,
+        "variance_qty": -2000.0,
         "variance_percent": -100.0,
         "flagged": true
       },
@@ -138,24 +82,80 @@
         "variance_percent": -100.0,
         "flagged": true
       },
-      "fresh_milk": {
-        "theoretical": 2000.0,
+      "chicken_breast": {
+        "theoretical": 140.0,
         "actual": 0,
-        "variance_qty": -2000.0,
+        "variance_qty": -140.0,
         "variance_percent": -100.0,
         "flagged": true
       },
-      "sourdough": {
-        "theoretical": 200.0,
-        "actual": 0,
-        "variance_qty": -200.0,
-        "variance_percent": -100.0,
+      "banana": {
+        "theoretical": 500.0,
+        "actual": 800.0,
+        "variance_qty": 300.0,
+        "variance_percent": 60.0,
         "flagged": true
       },
       "sourdough_bread": {
         "theoretical": 3.0,
         "actual": 0,
         "variance_qty": -3.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "edamame": {
+        "theoretical": 30.0,
+        "actual": 0,
+        "variance_qty": -30.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "oreo": {
+        "theoretical": 10.0,
+        "actual": 0,
+        "variance_qty": -10.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "tomato": {
+        "theoretical": 140.0,
+        "actual": 0,
+        "variance_qty": -140.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "mozzarella": {
+        "theoretical": 80.0,
+        "actual": 0,
+        "variance_qty": -80.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "avocado": {
+        "theoretical": 500.0,
+        "actual": 500.0,
+        "variance_qty": 0.0,
+        "variance_percent": 0.0,
+        "flagged": false
+      },
+      "dates": {
+        "theoretical": 15.0,
+        "actual": 0,
+        "variance_qty": -15.0,
+        "variance_percent": -100.0,
+        "flagged": true
+      },
+      "milk": {
+        "theoretical": 1000.0,
+        "actual": 2000.0,
+        "variance_qty": 1000.0,
+        "variance_percent": 100.0,
+        "flagged": true
+      },
+      "romaine": {
+        "theoretical": 100.0,
+        "actual": 0,
+        "variance_qty": -100.0,
         "variance_percent": -100.0,
         "flagged": true
       }
